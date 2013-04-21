@@ -52,6 +52,7 @@ END_MESSAGE_MAP()
 
 CoglMFCDialogDlg::CoglMFCDialogDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CoglMFCDialogDlg::IDD, pParent)
+	, m_SliderCenter(0)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -59,6 +60,8 @@ CoglMFCDialogDlg::CoglMFCDialogDlg(CWnd* pParent /*=NULL*/)
 void CoglMFCDialogDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Slider(pDX, IDC_SLIDER2, m_SliderCenter);
+	DDX_Control(pDX, IDC_SLIDER2, m_ControlSliderCenter);
 }
 
 BEGIN_MESSAGE_MAP(CoglMFCDialogDlg, CDialogEx)
@@ -67,6 +70,8 @@ BEGIN_MESSAGE_MAP(CoglMFCDialogDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_WM_SIZE()
 	ON_WM_TIMER()
+	ON_NOTIFY(NM_THEMECHANGED, IDC_SLIDER2, &CoglMFCDialogDlg::OnNMThemeChangedSlider2)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER2, &CoglMFCDialogDlg::OnNMCustomdrawSlider2)
 END_MESSAGE_MAP()
 
 
@@ -134,6 +139,8 @@ BOOL CoglMFCDialogDlg::OnInitDialog()
 	m_oglWindow.oglCreate(rect, GetDlgItem(IDC_OPENGL));
 	// Setup the OpenGL Window's timer to render
 	m_oglWindow.m_unpTimer = m_oglWindow.SetTimer(1, 1, 0);
+
+	m_ControlSliderCenter.SetRangeMax(2000);
 	return TRUE;  // 傳回 TRUE，除非您對控制項設定焦點
 }
 
@@ -208,4 +215,25 @@ void CoglMFCDialogDlg::OnTimer(UINT_PTR nIDEvent)
 		m_center_vtk.Render();
 		m_right_vtk.Render();
 	}
+}
+
+
+void CoglMFCDialogDlg::OnNMThemeChangedSlider2(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	// 此功能需要 Windows XP 或更新的版本。
+	// 符號 _WIN32_WINNT 必須是 >= 0x0501。
+	// TODO: 在此加入控制項告知處理常式程式碼
+	printf("slider: %d\n", m_SliderCenter);
+	*pResult = 0;
+}
+
+
+void CoglMFCDialogDlg::OnNMCustomdrawSlider2(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
+	this->UpdateData();
+	printf("slider: %d\n", m_SliderCenter);
+	m_center_vtk.m_SkinExtractor->SetValue(0, m_SliderCenter);
+	// TODO: 在此加入控制項告知處理常式程式碼
+	*pResult = 0;
 }

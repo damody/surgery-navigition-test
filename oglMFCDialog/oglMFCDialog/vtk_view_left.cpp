@@ -13,6 +13,7 @@ vtk_view_left::~vtk_view_left(void)
 
 void vtk_view_left::InitVTK( HWND hwnd, int w, int h )
 {
+	return;
 	m_hwnd = CreateWindowA("edit", "", WS_CHILD | WS_DISABLED | WS_VISIBLE
 		, 0, 0, w, h, hwnd, 
 		(HMENU)"", GetModuleHandle(NULL), NULL);
@@ -22,7 +23,7 @@ void vtk_view_left::InitVTK( HWND hwnd, int w, int h )
 	m_DICOM	= vtkSmartNew;
 	m_DICOM->SetDataByteOrderToLittleEndian();  
 	m_DICOM->SetDirectoryName("3b_mpr_pr_hf_vfh");  
-	m_DICOM->SetDataSpacing (3.2, 3.2, 1.5);  
+	m_DICOM->SetDataSpacing (3, 3, 3);  
 	m_SkinExtractor = vtkSmartNew;
 	m_SkinExtractor->SetInputConnection(m_DICOM->GetOutputPort());  
 	m_SkinExtractor->SetValue(0, 500);  

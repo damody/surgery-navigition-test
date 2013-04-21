@@ -7,6 +7,7 @@
 #include "vtk_view.h"
 #include "vtk_view_left.h"
 #include "vtk_view_right.h"
+#include "afxcmn.h"
 
 // CoglMFCDialogDlg ¹ï¸Ü¤è¶ô
 class CoglMFCDialogDlg : public CDialogEx
@@ -40,4 +41,8 @@ protected:
 public:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	afx_msg void OnNMThemeChangedSlider2(NMHDR *pNMHDR, LRESULT *pResult);
+	int m_SliderCenter;
+	afx_msg void OnNMCustomdrawSlider2(NMHDR *pNMHDR, LRESULT *pResult);
+	CSliderCtrl m_ControlSliderCenter;
 };
