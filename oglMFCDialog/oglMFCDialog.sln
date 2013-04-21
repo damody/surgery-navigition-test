@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "oglMFCDialog", "oglMFCDialog\oglMFCDialog.vcxproj", "{985687A5-72AC-4444-905E-8F969FD3D00C}"
+EndProject
+Global
+	GlobalSection(CodealikeProperties) = postSolution
+		SolutionGuid = 056e5654-0aab-46ed-abf9-19461051be0d
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{985687A5-72AC-4444-905E-8F969FD3D00C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{985687A5-72AC-4444-905E-8F969FD3D00C}.Debug|Win32.Build.0 = Debug|Win32
+		{985687A5-72AC-4444-905E-8F969FD3D00C}.Debug|x64.ActiveCfg = Debug|x64
+		{985687A5-72AC-4444-905E-8F969FD3D00C}.Debug|x64.Build.0 = Debug|x64
+		{985687A5-72AC-4444-905E-8F969FD3D00C}.Release|Win32.ActiveCfg = Release|Win32
+		{985687A5-72AC-4444-905E-8F969FD3D00C}.Release|Win32.Build.0 = Release|Win32
+		{985687A5-72AC-4444-905E-8F969FD3D00C}.Release|x64.ActiveCfg = Release|x64
+		{985687A5-72AC-4444-905E-8F969FD3D00C}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
