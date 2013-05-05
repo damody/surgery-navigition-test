@@ -32,6 +32,7 @@ public:
 	vtkPolyDataNormals_Sptr		m_SkinNormals;
 	vtkPolyDataMapper_Sptr		m_PolyMapper;
 	vtkActor_Sptr				m_skinActor;
+	vtkImagePlaneWidget_Sptr	m_planeWidget;
 	HWND	m_hwnd;
 	vtk_view_left(void);
 	~vtk_view_left(void);
@@ -39,6 +40,30 @@ public:
 	void Render()
 	{
 		m_RenderWindow->Render();
+		double pos[3];
+		if (m_planeWidget->GetCursorDataStatus())
+		{
+			m_planeWidget->GetCurrentCursorPosition(pos);
+			pos[2] *= 10;
+			printf("x:%f y:%f z:%f\n", pos[0], pos[1], pos[2]);
+			
+			static vtkSmartPointer<vtkCubeSource> cubeSource =
+				vtkSmartPointer<vtkCubeSource>::New();
+			cubeSource->SetXLength(10);
+			cubeSource->SetYLength(10);
+			cubeSource->SetZLength(10);
+			cubeSource->SetCenter(pos);
+			// Create a mapper and actor.
+			static vtkSmartPointer<vtkPolyDataMapper> mapper =
+				vtkSmartPointer<vtkPolyDataMapper>::New();
+			mapper->SetInputConnection(cubeSource->GetOutputPort());
+			static vtkSmartPointer<vtkActor> actor =
+				vtkSmartPointer<vtkActor>::New();
+			mapper->Update();
+			actor->SetMapper(mapper);
+			m_Renderer->AddActor(actor);
+		}
+
 	}
 };
 

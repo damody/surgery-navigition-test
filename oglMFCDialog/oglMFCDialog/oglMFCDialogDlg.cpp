@@ -164,7 +164,7 @@ BOOL CoglMFCDialogDlg::OnInitDialog()
 	// Setup the OpenGL Window's timer to render
 	m_oglWindow.m_unpTimer = m_oglWindow.SetTimer(1, 1, 0);
 
-	//m_ControlSliderCenter.SetRangeMax(200);
+	m_ControlSliderLeft.SetRangeMax(1000);
 	return TRUE;  // 傳回 TRUE，除非您對控制項設定焦點
 }
 
@@ -257,7 +257,7 @@ void CoglMFCDialogDlg::OnNMCustomdrawSlider2(NMHDR *pNMHDR, LRESULT *pResult)
 	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
 	this->UpdateData();
 	printf("slider: %d\n", m_SliderCenter);
-	m_center_vtk.m_SkinExtractor->SetValue(0, m_SliderCenter);
+	//m_center_vtk.m_SkinExtractor->SetValue(0, m_SliderCenter);
 	// TODO: 在此加入控制項告知處理常式程式碼
 	*pResult = 0;
 }
@@ -279,7 +279,7 @@ void CoglMFCDialogDlg::OnNMCustomdrawSlider3(NMHDR *pNMHDR, LRESULT *pResult)
 	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
 	this->UpdateData();
 	printf("slider: %d\n", m_SliderRight);
-	m_right_vtk.m_SkinExtractor->SetValue(0, m_SliderRight);
+	//m_right_vtk.m_SkinExtractor->SetValue(0, m_SliderRight);
 	// TODO: 在此加入控制項告知處理常式程式碼
 	*pResult = 0;
 }
