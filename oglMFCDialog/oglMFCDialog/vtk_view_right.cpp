@@ -12,7 +12,8 @@ vtk_view_right::~vtk_view_right(void)
 }
 void vtk_view_right::InitVTK( HWND hwnd, int w, int h )
 {
-	return;
+	return ;
+
 	m_hwnd = CreateWindowA("edit", "", WS_CHILD | WS_DISABLED | WS_VISIBLE
 		, 0, 0, w, h, hwnd, 
 		(HMENU)"", GetModuleHandle(NULL), NULL);

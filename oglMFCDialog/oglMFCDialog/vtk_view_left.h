@@ -3,6 +3,18 @@
 #include "vtk_define.h"
 #include <vtkCubeSource.h>
 #include "vtkBounds.h"
+#include <vtkPolyDataMapper.h>
+#include <vtkActor.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderer.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkPolyData.h>
+#include <vtkSmartPointer.h>
+#include <vtkSphereSource.h>
+#include <vtkImagePlaneWidget.h>
+#include <vtkInteractorStyleTrackballActor.h>
+#include <vtkInteractorStyleTrackballCamera.h>
+
 class vtk_view_left
 {
 	
@@ -26,7 +38,7 @@ public:
 	void InitVTK(HWND hwnd, int w, int h);
 	void Render()
 	{
-		//m_RenderWindow->Render();
+		m_RenderWindow->Render();
 	}
 };
 

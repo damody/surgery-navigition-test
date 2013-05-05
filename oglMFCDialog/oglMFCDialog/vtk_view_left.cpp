@@ -13,13 +13,12 @@ vtk_view_left::~vtk_view_left(void)
 
 void vtk_view_left::InitVTK( HWND hwnd, int w, int h )
 {
-	return;
 	m_hwnd = CreateWindowA("edit", "", WS_CHILD | WS_DISABLED | WS_VISIBLE
 		, 0, 0, w, h, hwnd, 
 		(HMENU)"", GetModuleHandle(NULL), NULL);
 	ShowWindow(m_hwnd, true);
 	UpdateWindow(m_hwnd);
-	//m_hwnd = hwnd;
+	m_hwnd = hwnd;
 	m_DICOM	= vtkSmartNew;
 	m_DICOM->SetDataByteOrderToLittleEndian();  
 	m_DICOM->SetDirectoryName("3b_mpr_pr_hf_vfh");  
@@ -60,8 +59,18 @@ void vtk_view_left::InitVTK( HWND hwnd, int w, int h )
 	m_RenderWindow->Render();
 	m_RenderWindow->SetSize(w, h);
 
+
+
 	vtkSmartPointer<vtkCubeSource> cubeSource =
 		vtkSmartPointer<vtkCubeSource>::New();
+
+	vtkSmartPointer<vtkSphereSource> sphereSource = 
+		vtkSmartPointer<vtkSphereSource>::New();
+	sphereSource->Update();
+
+
+
+
 	// Create a mapper and actor.
 	vtkSmartPointer<vtkPolyDataMapper> mapper =
 		vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -76,4 +85,31 @@ void vtk_view_left::InitVTK( HWND hwnd, int w, int h )
 	// Add the actors to the scene
 	//m_Renderer->AddActor(actor);
 	m_Renderer->AddActor(m_skinActor);
+
+
+
+
+
+	
+
+	vtkSmartPointer<vtkImagePlaneWidget> planeWidget = 
+		vtkSmartPointer<vtkImagePlaneWidget>::New();
+	planeWidget->SetInteractor(m_WindowInteractor);
+// 
+	double origin[3] = {0, 1,0};
+	planeWidget->SetOrigin(origin);
+	planeWidget->UpdatePlacement();
+// 
+// 	// Render
+	m_RenderWindow->Render();
+// 
+	m_WindowInteractor->Initialize();
+	m_RenderWindow->Render();
+	//planeWidget->On();
+	
+
+// 
+// 	// Begin mouse interaction
+// 	
+	
 }

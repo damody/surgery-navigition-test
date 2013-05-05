@@ -13,6 +13,8 @@ vtk_view::~vtk_view(void)
 
 void vtk_view::InitVTK( HWND hwnd, int w, int h )
 {
+
+	return ;
 	m_hwnd = CreateWindowA("edit", "", WS_CHILD | WS_DISABLED | WS_VISIBLE
 		, 0, 0, w, h, hwnd, 
 		(HMENU)"", GetModuleHandle(NULL), NULL);
@@ -77,4 +79,6 @@ void vtk_view::InitVTK( HWND hwnd, int w, int h )
 	// Add the actors to the scene
 	//m_Renderer->AddActor(actor);
 	m_Renderer->AddActor(m_skinActor);
+
+
 }

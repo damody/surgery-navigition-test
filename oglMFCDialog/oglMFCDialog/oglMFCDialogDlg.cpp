@@ -53,6 +53,11 @@ END_MESSAGE_MAP()
 CoglMFCDialogDlg::CoglMFCDialogDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CoglMFCDialogDlg::IDD, pParent)
 	, m_SliderCenter(0)
+	, m_SliderLeft(0)
+	, m_SliderRight(0)
+	, m_ShowValue_Right(_T(""))
+	, m_ShowValue_Center(_T(""))
+	, m_ShowValue_Left(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -62,6 +67,13 @@ void CoglMFCDialogDlg::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Slider(pDX, IDC_SLIDER2, m_SliderCenter);
 	DDX_Control(pDX, IDC_SLIDER2, m_ControlSliderCenter);
+	DDX_Control(pDX, IDC_SLIDER1, m_ControlSliderLeft);
+	DDX_Slider(pDX, IDC_SLIDER1, m_SliderLeft);
+	DDX_Control(pDX, IDC_SLIDER3, m_ControlSliderRight);
+	DDX_Slider(pDX, IDC_SLIDER3, m_SliderRight);
+	DDX_Text(pDX, IDC_RIGHT_VALUE, m_ShowValue_Right);
+	DDX_Text(pDX, IDC_CENTER_VALUE, m_ShowValue_Center);
+	DDX_Text(pDX, IDC_LEFT_VALUE, m_ShowValue_Left);
 }
 
 BEGIN_MESSAGE_MAP(CoglMFCDialogDlg, CDialogEx)
@@ -72,6 +84,9 @@ BEGIN_MESSAGE_MAP(CoglMFCDialogDlg, CDialogEx)
 	ON_WM_TIMER()
 	ON_NOTIFY(NM_THEMECHANGED, IDC_SLIDER2, &CoglMFCDialogDlg::OnNMThemeChangedSlider2)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER2, &CoglMFCDialogDlg::OnNMCustomdrawSlider2)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER1, &CoglMFCDialogDlg::OnNMCustomdrawSlider1)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER3, &CoglMFCDialogDlg::OnNMCustomdrawSlider3)
+	ON_WM_HSCROLL()
 END_MESSAGE_MAP()
 
 
@@ -89,6 +104,15 @@ BOOL CoglMFCDialogDlg::OnInitDialog()
 
 	CDialogEx::OnInitDialog();
 
+	m_ControlSliderRight.SetRange(0,100,TRUE);
+	m_ControlSliderRight.SetPos(0);
+	m_ShowValue_Right.Format(_T("%d"),0);
+	m_ControlSliderCenter.SetRange(0,100,TRUE);
+	m_ControlSliderCenter.SetPos(0);
+	m_ShowValue_Center.Format(_T("%d"),0);
+	m_ControlSliderLeft.SetRange(0,100,TRUE);
+	m_ControlSliderLeft.SetPos(0);
+	m_ShowValue_Left.Format(_T("%d"),0);
 	// 將 [關於...] 功能表加入系統功能表。
 
 	// IDM_ABOUTBOX 必須在系統命令範圍之中。
@@ -140,7 +164,7 @@ BOOL CoglMFCDialogDlg::OnInitDialog()
 	// Setup the OpenGL Window's timer to render
 	m_oglWindow.m_unpTimer = m_oglWindow.SetTimer(1, 1, 0);
 
-	m_ControlSliderCenter.SetRangeMax(2000);
+	//m_ControlSliderCenter.SetRangeMax(200);
 	return TRUE;  // 傳回 TRUE，除非您對控制項設定焦點
 }
 
@@ -236,4 +260,58 @@ void CoglMFCDialogDlg::OnNMCustomdrawSlider2(NMHDR *pNMHDR, LRESULT *pResult)
 	m_center_vtk.m_SkinExtractor->SetValue(0, m_SliderCenter);
 	// TODO: 在此加入控制項告知處理常式程式碼
 	*pResult = 0;
+}
+
+
+void CoglMFCDialogDlg::OnNMCustomdrawSlider1(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
+	this->UpdateData();
+	printf("slider: %d\n", m_SliderLeft);
+	m_left_vtk.m_SkinExtractor->SetValue(0, m_SliderLeft);
+	// TODO: 在此加入控制項告知處理常式程式碼
+	*pResult = 0;
+}
+
+
+void CoglMFCDialogDlg::OnNMCustomdrawSlider3(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
+	this->UpdateData();
+	printf("slider: %d\n", m_SliderRight);
+	m_right_vtk.m_SkinExtractor->SetValue(0, m_SliderRight);
+	// TODO: 在此加入控制項告知處理常式程式碼
+	*pResult = 0;
+}
+
+
+void CoglMFCDialogDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
+{
+	if (pScrollBar ==(CScrollBar*)& m_ControlSliderRight)
+	{
+		int value = m_ControlSliderRight.GetPos();
+		m_ShowValue_Right.Format(_T("%d"),value);
+		UpdateData(FALSE);
+	} 
+		if (pScrollBar ==(CScrollBar*)& m_ControlSliderCenter)
+			{
+						int value = m_ControlSliderCenter.GetPos();
+						m_ShowValue_Center.Format(_T("%d"),value);
+						UpdateData(FALSE);
+						 	} 
+		if (pScrollBar ==(CScrollBar*)& m_ControlSliderLeft)
+			{
+			 		int value = m_ControlSliderLeft.GetPos();
+					m_ShowValue_Left.Format(_T("%d"),value);
+			 		UpdateData(FALSE);
+					} 
+
+	else 
+	{
+		CDialogEx::OnHScroll(nSBCode, nPos, pScrollBar);
+	}
+
+	// TODO: 在此加入您的訊息處理常式程式碼和 (或) 呼叫預設值
+
+	CDialogEx::OnHScroll(nSBCode, nPos, pScrollBar);
 }

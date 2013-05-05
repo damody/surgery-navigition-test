@@ -26,7 +26,7 @@ public:
 	void InitVTK(HWND hwnd, int w, int h);
 	void Render()
 	{
-		m_RenderWindow->Render();
+	//	m_RenderWindow->Render();
 	}
 };
 

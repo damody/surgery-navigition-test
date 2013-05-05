@@ -45,4 +45,14 @@ public:
 	int m_SliderCenter;
 	afx_msg void OnNMCustomdrawSlider2(NMHDR *pNMHDR, LRESULT *pResult);
 	CSliderCtrl m_ControlSliderCenter;
+	CSliderCtrl m_ControlSliderLeft;
+	int m_SliderLeft;
+	afx_msg void OnNMCustomdrawSlider1(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMCustomdrawSlider3(NMHDR *pNMHDR, LRESULT *pResult);
+	CSliderCtrl m_ControlSliderRight;
+	int m_SliderRight;
+	CString m_ShowValue_Right;
+	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+	CString m_ShowValue_Center;
+	CString m_ShowValue_Left;
 };
