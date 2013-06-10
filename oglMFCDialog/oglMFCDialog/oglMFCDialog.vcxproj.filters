@@ -51,6 +51,12 @@
     <ClInclude Include="vtk_view_right.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
+    <ClInclude Include="vtk_view_bottom.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="KeyPressInteractorStyle.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="oglMFCDialog.cpp">
@@ -75,6 +81,9 @@
       <Filter>原始程式檔</Filter>
     </ClCompile>
     <ClCompile Include="vtk_view_right.cpp">
+      <Filter>原始程式檔</Filter>
+    </ClCompile>
+    <ClCompile Include="vtk_view_bottom.cpp">
       <Filter>原始程式檔</Filter>
     </ClCompile>
   </ItemGroup>

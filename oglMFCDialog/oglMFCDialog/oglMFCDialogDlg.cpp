@@ -142,15 +142,25 @@ BOOL CoglMFCDialogDlg::OnInitDialog()
 
 	CRect rect;
 
-	GetDlgItem(IDC_LEFT_VTK)->GetWindowRect(rect);
 	
-	m_left_vtk.InitVTK(GetDlgItem(IDC_LEFT_VTK)->GetSafeHwnd(), rect.Width(), rect.Height());
-	this->SetTimer(IDC_LEFT_VTK, 1, 0);
-	m_center_vtk.InitVTK(GetDlgItem(IDC_CENTER_VTK)->GetSafeHwnd(), rect.Width(), rect.Height());
-	this->SetTimer(IDC_CENTER_VTK, 1, 0);
-	m_right_vtk.InitVTK(GetDlgItem(IDC_RIGHT_VTK)->GetSafeHwnd(), rect.Width(), rect.Height());
-	this->SetTimer(IDC_RIGHT_VTK, 1, 0);
+	vtkDICOMImageReader_Sptr dicom	= vtkSmartNew;
+	dicom->SetDataByteOrderToLittleEndian();  
+	dicom->SetDirectoryName("CT_EDU");  
+	dicom->Update();
 
+	GetDlgItem(IDC_OPENGL)->GetWindowRect(rect);
+	m_bottom_vtk.InitVTK(GetDlgItem(IDC_OPENGL)->GetSafeHwnd(), rect.Width(), rect.Height(), dicom);
+	this->SetTimer(IDC_OPENGL, 1, 0);
+
+	GetDlgItem(IDC_LEFT_VTK)->GetWindowRect(rect);
+	m_left_vtk.InitVTK(GetDlgItem(IDC_LEFT_VTK)->GetSafeHwnd(), rect.Width(), rect.Height(), dicom);
+	this->SetTimer(IDC_LEFT_VTK, 1, 0);
+	m_center_vtk.InitVTK(GetDlgItem(IDC_CENTER_VTK)->GetSafeHwnd(), rect.Width(), rect.Height(), dicom);
+	this->SetTimer(IDC_CENTER_VTK, 1, 0);
+	m_right_vtk.InitVTK(GetDlgItem(IDC_RIGHT_VTK)->GetSafeHwnd(), rect.Width(), rect.Height(), dicom);
+	this->SetTimer(IDC_RIGHT_VTK, 1, 0);
+	
+	
 	// Get size and position of the template textfield we created before in the dialog editor
 	GetDlgItem(IDC_OPENGL)->GetWindowRect(rect);
 
@@ -160,9 +170,9 @@ BOOL CoglMFCDialogDlg::OnInitDialog()
 	rect.MoveToY(0);
 
 	// Create OpenGL Control window
-	m_oglWindow.oglCreate(rect, GetDlgItem(IDC_OPENGL));
+	//m_oglWindow.oglCreate(rect, GetDlgItem(IDC_OPENGL));
 	// Setup the OpenGL Window's timer to render
-	m_oglWindow.m_unpTimer = m_oglWindow.SetTimer(1, 1, 0);
+	//m_oglWindow.m_unpTimer = m_oglWindow.SetTimer(1, 1, 0);
 
 	m_ControlSliderLeft.SetRangeMax(1000);
 	return TRUE;  // 傳回 TRUE，除非您對控制項設定焦點
@@ -235,6 +245,13 @@ void CoglMFCDialogDlg::OnTimer(UINT_PTR nIDEvent)
 	CDialogEx::OnTimer(nIDEvent);
 	if (nIDEvent == IDC_LEFT_VTK)
 	{
+		m_bottom_vtk.Render();
+		m_left_vtk.SetClip(m_bottom_vtk.m_clipX);
+		m_center_vtk.SetClip(m_bottom_vtk.m_clipY);
+		m_right_vtk.SetClip(m_bottom_vtk.m_clipZ);
+		m_left_vtk.SetCubePos(m_bottom_vtk.m_clipX, m_bottom_vtk.m_clipY, m_bottom_vtk.m_clipZ*10);
+		m_center_vtk.SetCubePos(m_bottom_vtk.m_clipX, m_bottom_vtk.m_clipY, m_bottom_vtk.m_clipZ*10);
+		m_right_vtk.SetCubePos(m_bottom_vtk.m_clipX, m_bottom_vtk.m_clipY, m_bottom_vtk.m_clipZ*10);
 		m_left_vtk.Render();
 		m_center_vtk.Render();
 		m_right_vtk.Render();
@@ -268,7 +285,8 @@ void CoglMFCDialogDlg::OnNMCustomdrawSlider1(NMHDR *pNMHDR, LRESULT *pResult)
 	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
 	this->UpdateData();
 	printf("slider: %d\n", m_SliderLeft);
-	m_left_vtk.m_SkinExtractor->SetValue(0, m_SliderLeft);
+	//m_left_vtk.m_SkinExtractor->SetValue(0, m_SliderLeft);
+	m_bottom_vtk.SetAlpha(m_SliderLeft*0.01);
 	// TODO: 在此加入控制項告知處理常式程式碼
 	*pResult = 0;
 }
@@ -279,6 +297,8 @@ void CoglMFCDialogDlg::OnNMCustomdrawSlider3(NMHDR *pNMHDR, LRESULT *pResult)
 	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
 	this->UpdateData();
 	printf("slider: %d\n", m_SliderRight);
+	m_bottom_vtk.Cylinder10_lenth=m_SliderRight;
+	
 	//m_right_vtk.m_SkinExtractor->SetValue(0, m_SliderRight);
 	// TODO: 在此加入控制項告知處理常式程式碼
 	*pResult = 0;

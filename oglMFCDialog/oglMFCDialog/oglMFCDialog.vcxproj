@@ -195,6 +195,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="KeyPressInteractorStyle.h" />
     <ClInclude Include="oglMFCDialog.h" />
     <ClInclude Include="oglMFCDialogDlg.h" />
     <ClInclude Include="OpenGLControl.h" />
@@ -204,6 +205,7 @@
     <ClInclude Include="vtkBounds.h" />
     <ClInclude Include="vtk_define.h" />
     <ClInclude Include="vtk_view.h" />
+    <ClInclude Include="vtk_view_bottom.h" />
     <ClInclude Include="vtk_view_left.h" />
     <ClInclude Include="vtk_view_right.h" />
   </ItemGroup>
@@ -225,6 +227,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="vtk_view_bottom.cpp" />
     <ClCompile Include="vtk_view_left.cpp" />
     <ClCompile Include="vtk_view_right.cpp" />
   </ItemGroup>

@@ -4,6 +4,9 @@
 
 vtk_view_left::vtk_view_left(void)
 {
+	m_cubePos[0] = 0;
+	m_cubePos[1] = 0;
+	m_cubePos[2] = 0;
 }
 
 
@@ -11,7 +14,7 @@ vtk_view_left::~vtk_view_left(void)
 {
 }
 
-void vtk_view_left::InitVTK( HWND hwnd, int w, int h )
+void vtk_view_left::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr dicom )
 {
 	m_hwnd = CreateWindowA("edit", "", WS_CHILD | WS_DISABLED | WS_VISIBLE
 		, 0, 0, w, h, hwnd, 
@@ -19,10 +22,7 @@ void vtk_view_left::InitVTK( HWND hwnd, int w, int h )
 	ShowWindow(m_hwnd, true);
 	UpdateWindow(m_hwnd);
 	m_hwnd = hwnd;
-	m_DICOM	= vtkSmartNew;
-	m_DICOM->SetDataByteOrderToLittleEndian();  
-	m_DICOM->SetDirectoryName("3b_mpr_pr_hf_vfh");  
-	m_DICOM->Update();
+	m_DICOM = dicom;
 	vtkImageData_Sptr imgdata = vtkSmartNew;
 	imgdata->DeepCopy(m_DICOM->GetOutput(0));
 	
@@ -39,7 +39,7 @@ void vtk_view_left::InitVTK( HWND hwnd, int w, int h )
 	printf("%f %f %f %f %f %f \n", Bounds[0], Bounds[1], Bounds[2], Bounds[3], Bounds[4], Bounds[5]);
 	double Spacing[3];
 	imgdata->GetSpacing(Spacing);
-	imgdata->SetSpacing(1, 1, 10);
+	imgdata->SetSpacing(1, 1, 1);
 	imgdata->GetSpacing(Spacing);
 	imgdata->Update();
 	printf("%f %f %f\n", Spacing[0], Spacing[1], Spacing[2]);
@@ -70,7 +70,6 @@ void vtk_view_left::InitVTK( HWND hwnd, int w, int h )
 	m_PolyMapper->SetInputConnection(m_SkinNormals->GetOutputPort());  
 	//m_PolyMapper->ScalarVisibilityOff();
 	m_PolyMapper->SetLookupTable(colorTransferFunction);
-	m_PolyMapper->Update();
 
 	m_skinActor = vtkSmartNew;
 	m_skinActor->SetMapper(m_PolyMapper);  
@@ -96,18 +95,17 @@ void vtk_view_left::InitVTK( HWND hwnd, int w, int h )
 	m_RenderWindow->Render();
 	m_RenderWindow->SetSize(w, h);
 
-	
-
 	vtkBounds bounding;
 	bounding.SetBounds(m_PolyMapper->GetBounds());
 	vtkSmartPointer<vtkActor> actor =
 		vtkSmartPointer<vtkActor>::New();
-	m_Camera->SetPosition((bounding.Xmid() + bounding.Ymid() + bounding.Zmid()) / 2, 0, 0);
+	m_Camera->SetViewUp(0,1,0);
+	m_Camera->SetPosition(2*(bounding.Xmid() + bounding.Ymid() + bounding.Zmid()), bounding.Ymid(), bounding.Zmid());
 	m_Camera->SetFocalPoint(bounding.Xmid(), bounding.Ymid(), bounding.Zmid());
 	// Add the actors to the scene
 	//m_Renderer->AddActor(actor);
 	
-	m_Renderer->AddActor(m_skinActor);
+	//m_Renderer->AddActor(m_skinActor);
 	
 	
 	m_planeWidget = vtkSmartPointer<vtkImagePlaneWidget>::New();
@@ -124,4 +122,26 @@ void vtk_view_left::InitVTK( HWND hwnd, int w, int h )
 // 	// Begin mouse interaction
 // 	
 	
+}
+
+void vtk_view_left::Render()
+{
+	m_RenderWindow->Render();
+	{
+		static vtkSmartPointer<vtkCubeSource> cubeSource =
+			vtkSmartPointer<vtkCubeSource>::New();
+		cubeSource->SetXLength(10);
+		cubeSource->SetYLength(10);
+		cubeSource->SetZLength(10);
+		cubeSource->SetCenter(m_cubePos);
+		// Create a mapper and actor.
+		static vtkSmartPointer<vtkPolyDataMapper> mapper =
+			vtkSmartPointer<vtkPolyDataMapper>::New();
+		mapper->SetInputConnection(cubeSource->GetOutputPort());
+		static vtkSmartPointer<vtkActor> actor =
+			vtkSmartPointer<vtkActor>::New();
+		mapper->Update();
+		actor->SetMapper(mapper);
+		m_Renderer->AddActor(actor);
+	}
 }

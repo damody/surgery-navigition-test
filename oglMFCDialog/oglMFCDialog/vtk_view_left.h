@@ -34,36 +34,21 @@ public:
 	vtkActor_Sptr				m_skinActor;
 	vtkImagePlaneWidget_Sptr	m_planeWidget;
 	HWND	m_hwnd;
+	double	m_cubePos[3];
 	vtk_view_left(void);
 	~vtk_view_left(void);
-	void InitVTK(HWND hwnd, int w, int h);
-	void Render()
+	
+	void InitVTK(HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr dicom);
+	void Render();
+	void SetClip(int c)
 	{
-		m_RenderWindow->Render();
-		double pos[3];
-		if (m_planeWidget->GetCursorDataStatus())
-		{
-			m_planeWidget->GetCurrentCursorPosition(pos);
-			pos[2] *= 10;
-			printf("x:%f y:%f z:%f\n", pos[0], pos[1], pos[2]);
-			
-			static vtkSmartPointer<vtkCubeSource> cubeSource =
-				vtkSmartPointer<vtkCubeSource>::New();
-			cubeSource->SetXLength(10);
-			cubeSource->SetYLength(10);
-			cubeSource->SetZLength(10);
-			cubeSource->SetCenter(pos);
-			// Create a mapper and actor.
-			static vtkSmartPointer<vtkPolyDataMapper> mapper =
-				vtkSmartPointer<vtkPolyDataMapper>::New();
-			mapper->SetInputConnection(cubeSource->GetOutputPort());
-			static vtkSmartPointer<vtkActor> actor =
-				vtkSmartPointer<vtkActor>::New();
-			mapper->Update();
-			actor->SetMapper(mapper);
-			m_Renderer->AddActor(actor);
-		}
-
+		m_planeWidget->SetSliceIndex(c);
+	}
+	void SetCubePos(double x, double y, double z)
+	{
+		m_cubePos[0] = x;
+		m_cubePos[1] = y;
+		m_cubePos[2] = z;
 	}
 };
 
