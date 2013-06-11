@@ -183,7 +183,6 @@ BOOL CoglMFCDialogDlg::OnInitDialog()
 	// Setup the OpenGL Window's timer to render
 	//m_oglWindow.m_unpTimer = m_oglWindow.SetTimer(1, 1, 0);
 	getcoordinate(m_bottom_vtk.niddlePos);
-	printf("coordinate X=%f",m_showvalue_X);
 	m_ControlSliderLeft.SetRangeMax(1000);
 	return TRUE;  // 傳回 TRUE，除非您對控制項設定焦點
 }
@@ -238,11 +237,11 @@ HCURSOR CoglMFCDialogDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-void CoglMFCDialogDlg::getcoordinate(double a[])
+void CoglMFCDialogDlg::getcoordinate(double* a)
 {
 	m_showvalue_X =a[1];
 	//return m_showvalue_X ;
-	printf("coordinate X=%f",m_showvalue_X);
+	printf("coordinate x=%f,y=%f,z=%f",a[1]-((a[1]-a[0])/2),a[3]-((a[3]-a[2])/2),a[5]-((a[5]-a[4])/2));  		
 }
 
 void CoglMFCDialogDlg::OnSize(UINT nType, int cx, int cy)

@@ -58,13 +58,28 @@ void vtk_view_left::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr d
 
 	vtkColorTransferFunction_Sptr	colorTransferFunction = vtkSmartNew;
 	double step = (1000.0)/6;
-	colorTransferFunction->AddRGBPoint(step*6, 1.0 / 2, 0.0, 0.0);
-	colorTransferFunction->AddRGBPoint(step*5, 1.0 / 2, 165 / 255 / 2.0, 0.0);
-	colorTransferFunction->AddRGBPoint(step*4, 1.0 / 2, 1.0 / 2, 0.0);
-	colorTransferFunction->AddRGBPoint(step*3, 0.0, 1.0 / 2, 0.0);
-	colorTransferFunction->AddRGBPoint(step*2, 0.0, 0.5 / 2, 1.0 / 2);
-	colorTransferFunction->AddRGBPoint(step*1, 0.0, 0.0, 1.0 / 2);
-	colorTransferFunction->AddRGBPoint(step*0, 139 / 255.0 / 2, 0.0, 1.0 / 2);
+	double gray = 0;
+// 	colorTransferFunction->AddRGBPoint(step*6, 1.0 / 2, 0.0, 0.0);
+// 	colorTransferFunction->AddRGBPoint(step*5, 1.0 / 2, 165 / 255 / 2.0, 0.0);
+// 	colorTransferFunction->AddRGBPoint(step*4, 1.0 / 2, 1.0 / 2, 0.0);
+// 	colorTransferFunction->AddRGBPoint(step*3, 0.0, 1.0 / 2, 0.0);
+// 	colorTransferFunction->AddRGBPoint(step*2, 0.0, 0.5 / 2, 1.0 / 2);
+// 	colorTransferFunction->AddRGBPoint(step*1, 0.0, 0.0, 1.0 / 2);
+// 	colorTransferFunction->AddRGBPoint(step*0, 139 / 255.0 / 2, 0.0, 1.0 / 2);
+	gray = 1/6.0*6;
+	colorTransferFunction->AddRGBPoint(step*6, gray, gray, gray);
+	gray = 1/6.0*5;
+	colorTransferFunction->AddRGBPoint(step*5, gray, gray, gray);
+	gray = 1/6.0*4;
+	colorTransferFunction->AddRGBPoint(step*4, gray, gray, gray);
+	gray = 1/6.0*3;
+	colorTransferFunction->AddRGBPoint(step*3, gray, gray, gray);
+	gray = 1/6.0*2;
+	colorTransferFunction->AddRGBPoint(step*2, gray, gray, gray);
+	gray = 1/6.0*1;
+	colorTransferFunction->AddRGBPoint(step*1, gray, gray, gray);
+	gray = 1/6.0*0;
+	colorTransferFunction->AddRGBPoint(step*0, gray, gray, gray);
 
 	m_PolyMapper = vtkSmartNew;
 	m_PolyMapper->SetInputConnection(m_SkinNormals->GetOutputPort());  

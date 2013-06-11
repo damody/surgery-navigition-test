@@ -1,6 +1,7 @@
 ﻿#include "stdafx.h"
 #include "vtk_view_bottom.h"
 #include "KeyPressInteractorStyle.h"
+#include <vtkTransformFilter.h>
 #include <auto_link_vtk.hpp>
 
 vtkStandardNewMacro(KeyPressInteractorStyle);
@@ -13,6 +14,38 @@ vtk_view_bottom::vtk_view_bottom(void)
 
 vtk_view_bottom::~vtk_view_bottom(void)
 {
+}
+
+
+vtkImageData_Sptr InverseZ(vtkImageData* imgdata)
+{
+	vtkPolyData_Sptr polydata = vtkSmartNew;
+	vtkPoints_Sptr input_points = vtkSmartNew;
+	vtkDoubleArray_Sptr input_scalars = vtkSmartNew;
+
+	int nx, ny, nz, dim[3];
+	vtkIdType count = imgdata->GetPointData()->GetScalars()->GetNumberOfTuples();
+	imgdata->GetDimensions(dim);
+	nx = dim[0];
+	ny = dim[1];
+	nz = dim[2];
+	std::vector<double> data;
+	for (int k=0;k<nz;++k)
+	{
+		for (int j=0;j<ny;++j)
+		{
+			for (int i=0;i<nx;++i)
+			{
+				input_points->InsertNextPoint(i, j, k);
+				input_scalars->InsertNextTuple1(imgdata->GetPointData()->GetScalars()->GetTuple1(i+nx*j+nx*ny*(nz-k-1)));
+			}
+		}
+	}
+	
+// 	polydata->SetPoints(input_points);
+// 	polydata->GetPointData()->SetScalars(input_scalars);
+	imgdata->GetPointData()->SetScalars(input_scalars);
+	return imgdata;
 }
 
 void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr dicom )
@@ -34,12 +67,15 @@ void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr
 	vtkIdType count = imgdata->GetPointData()->GetScalars()->GetNumberOfTuples();
 	printf("%d\n", imgdata->GetDataDimension());
 	printf("%d %d %d %d %d %d \n", ext[0], ext[1], ext[2], ext[3], ext[4], ext[5]);
+// 	ext[4] = ext[4]-ext[5]*2;
+// 	ext[5] = ext[5]-ext[5]*2;
+// 	imgdata->SetExtent(ext);
 
 	imgdata->GetBounds(Bounds);
 	printf("%f %f %f %f %f %f \n", Bounds[0], Bounds[1], Bounds[2], Bounds[3], Bounds[4], Bounds[5]);
 	double Spacing[3];
 	printf("x=%f y=%f z=%f",imgdata->GetOrigin()[0], imgdata->GetOrigin()[1], imgdata->GetOrigin()[2]);
-	imgdata->SetOrigin(105,105,105);
+	imgdata->SetOrigin(105,105,-300);
 	imgdata->GetSpacing(Spacing);
 	imgdata->SetSpacing(1, 1, 1);
 	imgdata->GetSpacing(Spacing);
@@ -49,9 +85,11 @@ void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr
 	imgdata->GetBounds(Bounds);
 	printf("%f %f %f %f %f %f \n", Bounds[0], Bounds[1], Bounds[2], Bounds[3], Bounds[4], Bounds[5]);
 
+	InverseZ(imgdata);
+
 	m_SkinExtractor = vtkSmartNew;
 	m_SkinExtractor->SetInput(imgdata);
-	//m_SkinExtractor->SetInputConnection(m_DICOM->GetOutputPort());  
+	//m_SkinExtractor->SetInputConnection(transformFilter->GetOutputPort());  
 	m_SkinExtractor->SetValue(0, 500);  
 
 	m_SkinNormals = vtkSmartNew;
@@ -231,17 +269,7 @@ void vtk_view_bottom::Render()
 
 		
 		Draw_robotic_arm();
-		printf("x=%f,y=%f,z=%f",niddlePos[1]-((niddlePos[1]-niddlePos[0])/2),niddlePos[3]-((niddlePos[3]-niddlePos[2])/2),niddlePos[5]-((niddlePos[5]-niddlePos[4])/2));
-	
-	   
-		
-		
-		
-		
-
-	
-		
-		
+		printf("x=%f,y=%f,z=%f",niddlePos[1]-((niddlePos[1]-niddlePos[0])/2),niddlePos[3]-((niddlePos[3]-niddlePos[2])/2),niddlePos[5]-((niddlePos[5]-niddlePos[4])/2));  		
 	}
 	m_clipX = m_planeWidgetX->GetSliceIndex();
 	m_clipY = m_planeWidgetY->GetSliceIndex();
@@ -294,8 +322,6 @@ void vtk_view_bottom::SetAlpha( double a )
 
 void vtk_view_bottom::Draw_robotic_arm()
 {
-
-
 	static vtkSmartPointer<vtkCubeSource> cube = vtkCubeSource::New();
 	/*cube ->SetCenter(29,36,29);*/
 	/*cube ->SetBounds(0.0,58,0.0,72.0,0.0,58.0);*/
@@ -356,11 +382,6 @@ void vtk_view_bottom::Draw_robotic_arm()
 	static vtkSmartPointer<vtkActor> Cylinderactor1 =
 		vtkSmartPointer<vtkActor>::New();
 	Cylinderactor1->SetMapper(Cylindermapper1);
-
-	
-
-
-
 	//transform
 	// 		vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
 	// 		//transform->RotateWXYZ(double angle, double x, double y, double z);
@@ -878,10 +899,6 @@ void vtk_view_bottom::Draw_robotic_arm()
 	//取得針端坐標點
 	spheresourcemapper ->GetBounds(niddlePos);
 	
-	
-	
-
-	
 	m_Renderer->AddActor(actor1);
 	m_Renderer->AddActor(cubeactor2);
 	m_Renderer->AddActor(cubeactor3);
@@ -985,4 +1002,5 @@ void KeyPressInteractorStyle::Set(vtk_view_bottom *v)
 {
 	vtk = v;
 }
+
 

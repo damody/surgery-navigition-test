@@ -60,7 +60,7 @@ public:
 	CString m_ShowValue_Center;
 	CString m_ShowValue_Left;
 	afx_msg void OnStnClickedCenterValue();
-	void getcoordinate(double a[]);
+	void getcoordinate(double* a);
 	
 	double m_showvalue_X;
 	double m_editcontrol_showX;
