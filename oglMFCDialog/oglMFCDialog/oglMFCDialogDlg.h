@@ -10,6 +10,8 @@
 #include "vtk_view_bottom.h"
 #include "afxcmn.h"
 
+
+
 // CoglMFCDialogDlg ¹ï¸Ü¤è¶ô
 class CoglMFCDialogDlg : public CDialogEx
 {
@@ -57,4 +59,10 @@ public:
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	CString m_ShowValue_Center;
 	CString m_ShowValue_Left;
+	afx_msg void OnStnClickedCenterValue();
+	void getcoordinate(double a[]);
+	
+	double m_showvalue_X;
+	double m_editcontrol_showX;
+	afx_msg void OnEnUpdateEdit1();
 };

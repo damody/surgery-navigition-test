@@ -231,7 +231,7 @@ void vtk_view_bottom::Render()
 
 		
 		Draw_robotic_arm();
-		
+		printf("x=%f,y=%f,z=%f",niddlePos[1]-((niddlePos[1]-niddlePos[0])/2),niddlePos[3]-((niddlePos[3]-niddlePos[2])/2),niddlePos[5]-((niddlePos[5]-niddlePos[4])/2));
 	
 	   
 		
@@ -876,9 +876,10 @@ void vtk_view_bottom::Draw_robotic_arm()
 	spheresourceactor->SetMapper(spheresourcemapper);
 	
 	//取得針端坐標點
-	sphereSource->GetCenter(niddlePos);
-	printf("x=%f,y=%f,z=%f",niddlePos[0],niddlePos[1],niddlePos[2]);
-	sphereSource->Update();
+	spheresourcemapper ->GetBounds(niddlePos);
+	
+	
+	
 
 	
 	m_Renderer->AddActor(actor1);
@@ -984,3 +985,4 @@ void KeyPressInteractorStyle::Set(vtk_view_bottom *v)
 {
 	vtk = v;
 }
+

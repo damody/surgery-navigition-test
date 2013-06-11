@@ -20,6 +20,8 @@
 #include <vtkLineSource.h>
 #include "KeyPressInteractorStyle.h"
 
+
+
 class vtk_view_bottom
 {
 	friend void KeyPressInteractorStyle::OnKeyPress();
@@ -55,10 +57,12 @@ public:
 	void InitVTK(HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr dicom);
 	void SetAlpha(double a);
 	void Render();
+	
 	double Cylinder10_lenth;
-	double niddlePos[3];
+	double niddlePos[6];
 private:
 	void Draw_robotic_arm();
 	double Cube1_thita,Cylinder5_thita,Cylinder6_thita,Cylinder9_thita,Cylinder10_displace;
+	
 };
 

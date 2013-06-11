@@ -58,6 +58,9 @@ CoglMFCDialogDlg::CoglMFCDialogDlg(CWnd* pParent /*=NULL*/)
 	, m_ShowValue_Right(_T(""))
 	, m_ShowValue_Center(_T(""))
 	, m_ShowValue_Left(_T(""))
+	
+	, m_showvalue_X(0)
+	, m_editcontrol_showX(0)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -74,6 +77,9 @@ void CoglMFCDialogDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_RIGHT_VALUE, m_ShowValue_Right);
 	DDX_Text(pDX, IDC_CENTER_VALUE, m_ShowValue_Center);
 	DDX_Text(pDX, IDC_LEFT_VALUE, m_ShowValue_Left);
+
+	DDX_Text(pDX, IDC_STATIC_X, m_showvalue_X);
+	DDX_Text(pDX, IDC_EDIT1, m_editcontrol_showX);
 }
 
 BEGIN_MESSAGE_MAP(CoglMFCDialogDlg, CDialogEx)
@@ -87,6 +93,8 @@ BEGIN_MESSAGE_MAP(CoglMFCDialogDlg, CDialogEx)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER1, &CoglMFCDialogDlg::OnNMCustomdrawSlider1)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER3, &CoglMFCDialogDlg::OnNMCustomdrawSlider3)
 	ON_WM_HSCROLL()
+	ON_STN_CLICKED(IDC_CENTER_VALUE, &CoglMFCDialogDlg::OnStnClickedCenterValue)
+	ON_EN_UPDATE(IDC_EDIT1, &CoglMFCDialogDlg::OnEnUpdateEdit1)
 END_MESSAGE_MAP()
 
 
@@ -101,7 +109,7 @@ BOOL CoglMFCDialogDlg::OnInitDialog()
 	FILE* hf_out = _fdopen(hCrt, "w");
 	setvbuf(hf_out, NULL, _IONBF, 1);
 	*stdout = *hf_out;
-
+	double m_showvalue_X=0;
 	CDialogEx::OnInitDialog();
 
 	m_ControlSliderRight.SetRange(0,100,TRUE);
@@ -152,6 +160,7 @@ BOOL CoglMFCDialogDlg::OnInitDialog()
 	m_bottom_vtk.InitVTK(GetDlgItem(IDC_OPENGL)->GetSafeHwnd(), rect.Width(), rect.Height(), dicom);
 	this->SetTimer(IDC_OPENGL, 1, 0);
 
+
 	GetDlgItem(IDC_LEFT_VTK)->GetWindowRect(rect);
 	m_left_vtk.InitVTK(GetDlgItem(IDC_LEFT_VTK)->GetSafeHwnd(), rect.Width(), rect.Height(), dicom);
 	this->SetTimer(IDC_LEFT_VTK, 1, 0);
@@ -163,7 +172,7 @@ BOOL CoglMFCDialogDlg::OnInitDialog()
 	
 	// Get size and position of the template textfield we created before in the dialog editor
 	GetDlgItem(IDC_OPENGL)->GetWindowRect(rect);
-
+	
 	// Convert screen coordinates to client coordinates
 	//ScreenToClient(rect);
 	rect.MoveToX(0);
@@ -173,7 +182,8 @@ BOOL CoglMFCDialogDlg::OnInitDialog()
 	//m_oglWindow.oglCreate(rect, GetDlgItem(IDC_OPENGL));
 	// Setup the OpenGL Window's timer to render
 	//m_oglWindow.m_unpTimer = m_oglWindow.SetTimer(1, 1, 0);
-
+	getcoordinate(m_bottom_vtk.niddlePos);
+	printf("coordinate X=%f",m_showvalue_X);
 	m_ControlSliderLeft.SetRangeMax(1000);
 	return TRUE;  // 傳回 TRUE，除非您對控制項設定焦點
 }
@@ -194,6 +204,7 @@ void CoglMFCDialogDlg::OnSysCommand(UINT nID, LPARAM lParam)
 // 如果將最小化按鈕加入您的對話方塊，您需要下列的程式碼，
 // 以便繪製圖示。對於使用文件/檢視模式的 MFC 應用程式，
 // 框架會自動完成此作業。
+
 
 void CoglMFCDialogDlg::OnPaint()
 {
@@ -227,7 +238,12 @@ HCURSOR CoglMFCDialogDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-
+void CoglMFCDialogDlg::getcoordinate(double a[])
+{
+	m_showvalue_X =a[1];
+	//return m_showvalue_X ;
+	printf("coordinate X=%f",m_showvalue_X);
+}
 
 void CoglMFCDialogDlg::OnSize(UINT nType, int cx, int cy)
 {
@@ -252,6 +268,7 @@ void CoglMFCDialogDlg::OnTimer(UINT_PTR nIDEvent)
 		m_left_vtk.SetCubePos(m_bottom_vtk.m_clipX, m_bottom_vtk.m_clipY, m_bottom_vtk.m_clipZ*10);
 		m_center_vtk.SetCubePos(m_bottom_vtk.m_clipX, m_bottom_vtk.m_clipY, m_bottom_vtk.m_clipZ*10);
 		m_right_vtk.SetCubePos(m_bottom_vtk.m_clipX, m_bottom_vtk.m_clipY, m_bottom_vtk.m_clipZ*10);
+		
 		m_left_vtk.Render();
 		m_center_vtk.Render();
 		m_right_vtk.Render();
@@ -334,4 +351,22 @@ void CoglMFCDialogDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar
 	// TODO: 在此加入您的訊息處理常式程式碼和 (或) 呼叫預設值
 
 	CDialogEx::OnHScroll(nSBCode, nPos, pScrollBar);
+}
+
+
+void CoglMFCDialogDlg::OnStnClickedCenterValue()
+{
+	// TODO: 在此加入控制項告知處理常式程式碼
+}
+
+
+void CoglMFCDialogDlg::OnEnUpdateEdit1()
+{
+	// TODO:  如果這是 RICHEDIT 控制項，控制項將不會
+	// 傳送此告知，除非您覆寫 CDialogEx::OnInitDialog()
+	// 要傳送 EM_SETEVENTMASK 訊息到控制項的函式
+	// 將具有 ENM_UPDATE 旗標 ORed 加入 lParam 遮罩。
+
+	// TODO:  在此加入控制項告知處理常式程式碼
+	 m_editcontrol_showX = m_bottom_vtk.niddlePos[0];
 }
