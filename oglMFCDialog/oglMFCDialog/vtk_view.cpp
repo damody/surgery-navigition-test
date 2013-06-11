@@ -1,9 +1,12 @@
 #include "stdafx.h"
 #include "vtk_view.h"
+#include <vtkLineSource.h>
+#include <vtkTubeFilter.h>
 
 
 vtk_view::vtk_view(void)
 {
+	m_init = false;
 	m_cubePos[0] = 0;
 	m_cubePos[1] = 0;
 	m_cubePos[2] = 0;
@@ -16,6 +19,8 @@ vtk_view::~vtk_view(void)
 
 void vtk_view::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr dicom )
 {
+	m_init = true;
+	m_tubeActor = vtkSmartNew;
 	m_hwnd = CreateWindowA("edit", "", WS_CHILD | WS_DISABLED | WS_VISIBLE
 		, 0, 0, w, h, hwnd, 
 		(HMENU)"", GetModuleHandle(NULL), NULL);
@@ -47,14 +52,6 @@ void vtk_view::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr dicom 
 	imgdata->GetBounds(Bounds);
 	printf("%f %f %f %f %f %f \n", Bounds[0], Bounds[1], Bounds[2], Bounds[3], Bounds[4], Bounds[5]);
 
-	m_SkinExtractor = vtkSmartNew;
-	m_SkinExtractor->SetInput(imgdata);
-	//m_SkinExtractor->SetInputConnection(m_DICOM->GetOutputPort());  
-	m_SkinExtractor->SetValue(0, 500);  
-
-	m_SkinNormals = vtkSmartNew;
-	m_SkinNormals->SetInputConnection(m_SkinExtractor->GetOutputPort());  
-	//m_SkinNormals->SetFeatureAngle(60.0);  
 
 	vtkColorTransferFunction_Sptr	colorTransferFunction = vtkSmartNew;
 	double step = (1000.0)/6;
@@ -73,12 +70,7 @@ void vtk_view::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr dicom 
 	colorTransferFunction->AddRGBPoint(step*1, gray, gray, gray);
 	gray = 1/6.0*0;
 	colorTransferFunction->AddRGBPoint(step*0, gray, gray, gray);
-
-	m_PolyMapper = vtkSmartNew;
-	m_PolyMapper->SetInputConnection(m_SkinNormals->GetOutputPort());  
-	//m_PolyMapper->ScalarVisibilityOff();
-	m_PolyMapper->SetLookupTable(colorTransferFunction);
-
+	
 	m_skinActor = vtkSmartNew;
 	m_skinActor->SetMapper(m_PolyMapper);  
 
@@ -106,7 +98,7 @@ void vtk_view::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr dicom 
 
 
 	vtkBounds bounding;
-	bounding.SetBounds(m_PolyMapper->GetBounds());
+	bounding.SetBounds(imgdata->GetBounds());
 	vtkSmartPointer<vtkActor> actor =
 		vtkSmartPointer<vtkActor>::New();
 	m_Camera->SetViewUp(1,0,0);
@@ -161,3 +153,26 @@ void vtk_view::Render()
 		m_Renderer->AddActor(actor);
 	}
 }
+
+void vtk_view::SetCylinder( double* start, double* end )
+{
+	if (!m_init) return;
+	vtkSmartPointer<vtkLineSource> lineSource = 
+		vtkSmartPointer<vtkLineSource>::New();
+	lineSource->SetPoint1(start[0], start[1], start[2]);
+	lineSource->SetPoint2(end[0], end[1], end[2]);
+	vtkSmartPointer<vtkTubeFilter> tubeFilter = 
+		vtkSmartPointer<vtkTubeFilter>::New();
+	tubeFilter->SetInputConnection(lineSource->GetOutputPort());
+	tubeFilter->SetRadius(1); //default is .5
+	tubeFilter->SetNumberOfSides(50);
+	tubeFilter->Update();
+	vtkSmartPointer<vtkPolyDataMapper> tubeMapper = 
+		vtkSmartPointer<vtkPolyDataMapper>::New();
+	tubeMapper->SetInputConnection(tubeFilter->GetOutputPort());
+
+	m_tubeActor->GetProperty()->SetOpacity(0.5); //Make the tube have some transparency.
+	m_tubeActor->SetMapper(tubeMapper);
+	m_Renderer->AddActor(m_tubeActor);
+}
+

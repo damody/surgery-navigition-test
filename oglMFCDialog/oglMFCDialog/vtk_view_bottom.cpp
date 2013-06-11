@@ -75,7 +75,7 @@ void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr
 	printf("%f %f %f %f %f %f \n", Bounds[0], Bounds[1], Bounds[2], Bounds[3], Bounds[4], Bounds[5]);
 	double Spacing[3];
 	printf("x=%f y=%f z=%f",imgdata->GetOrigin()[0], imgdata->GetOrigin()[1], imgdata->GetOrigin()[2]);
-	imgdata->SetOrigin(105,105,-300);
+	imgdata->SetOrigin(400,400,-500);
 	imgdata->GetSpacing(Spacing);
 	imgdata->SetSpacing(1, 1, 1);
 	imgdata->GetSpacing(Spacing);
@@ -233,9 +233,9 @@ void vtk_view_bottom::Render()
 	//if (m_planeWidgetX->GetCursorDataStatus())
 	{
 		//m_planeWidgetX->GetCurrentCursorPosition(pos);
-		pos[0] = m_clipX;
-		pos[1] = m_clipY;
-		pos[2] = m_clipZ;
+		pos[0] = m_clipX+400;;
+		pos[1] = m_clipY+400;
+		pos[2] = m_clipZ-50;
 		pos[2] *= 10;
 		//printf("x:%f y:%f z:%f\n", pos[0], pos[1], pos[2]);
 
@@ -266,9 +266,15 @@ void vtk_view_bottom::Render()
 		actor->SetMapper(mapper);
 
 		m_Renderer->AddActor(actor);
-
-		
+			
 		Draw_robotic_arm();
+		niddlePos1[0] =(niddlePos_tmp1[1]+niddlePos_tmp1[0])/2;
+		niddlePos1[1] =(niddlePos_tmp1[3]+niddlePos_tmp1[2])/2;
+		niddlePos1[2] =(niddlePos_tmp1[5]+niddlePos_tmp1[4])/2;
+		niddlePos2[0] =(niddlePos_tmp2[1]+niddlePos_tmp2[0])/2;
+		niddlePos2[1] =(niddlePos_tmp2[3]+niddlePos_tmp2[2])/2;
+		niddlePos2[2] =(niddlePos_tmp2[5]+niddlePos_tmp2[4])/2;
+
 		//printf("x=%f,y=%f,z=%f",niddlePos[1]-((niddlePos[1]-niddlePos[0])/2),niddlePos[3]-((niddlePos[3]-niddlePos[2])/2),niddlePos[5]-((niddlePos[5]-niddlePos[4])/2));  		
 	}
 	m_clipX = m_planeWidgetX->GetSliceIndex();
@@ -881,7 +887,7 @@ void vtk_view_bottom::Draw_robotic_arm()
 	//transform->RotateWXYZ(double angle, double x, double y, double z);
 	transform_spheresource->SetMatrix(transform9->GetMatrix());
 
-	transform_spheresource->Translate(204+Cylinder10_displace,0,-10);
+	transform_spheresource->Translate(202+Cylinder10_displace,0,-10);
 
 	vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter_spheresource = 
 		vtkSmartPointer<vtkTransformPolyDataFilter>::New();
@@ -897,8 +903,33 @@ void vtk_view_bottom::Draw_robotic_arm()
 	spheresourceactor->SetMapper(spheresourcemapper);
 	
 	//取得針端坐標點
-	spheresourcemapper ->GetBounds(niddlePos);
+	spheresourcemapper ->GetBounds(niddlePos_tmp1);
 	
+	vtkSmartPointer<vtkSphereSource> sphereSource1 =		vtkSmartPointer<vtkSphereSource>::New();
+	sphereSource1->SetRadius(1);
+	sphereSource1->Update();
+
+
+	vtkSmartPointer<vtkTransform> transform_spheresource1 = vtkSmartPointer<vtkTransform>::New();
+	//transform->RotateWXYZ(double angle, double x, double y, double z);
+	transform_spheresource1->SetMatrix(transform9->GetMatrix());
+
+	transform_spheresource1->Translate(Cylinder10_displace,0,-10);
+
+	vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter_spheresource1 = 
+		vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+	transformFilter_spheresource1->SetTransform(transform_spheresource1);
+	transformFilter_spheresource1->SetInputConnection(sphereSource1->GetOutputPort());
+	transformFilter_spheresource1->Update();
+	static vtkSmartPointer<vtkPolyDataMapper> spheresourcemapper1 =
+		vtkSmartPointer<vtkPolyDataMapper>::New();
+	spheresourcemapper1->SetInput(transformFilter_spheresource1->GetOutput());
+	spheresourcemapper1->Update();
+	static vtkSmartPointer<vtkActor> spheresourceactor1 =
+		vtkSmartPointer<vtkActor>::New();
+	spheresourceactor1->SetMapper(spheresourcemapper1);
+	spheresourcemapper1->GetBounds(niddlePos_tmp2);
+
 	m_Renderer->AddActor(actor1);
 	m_Renderer->AddActor(cubeactor2);
 	m_Renderer->AddActor(cubeactor3);
@@ -920,7 +951,7 @@ void vtk_view_bottom::Draw_robotic_arm()
 	m_Renderer->AddActor(Cylinderactor9);
 	m_Renderer->AddActor(Cylinderactor10);
 	m_Renderer->AddActor(spheresourceactor);
-
+	m_Renderer->AddActor(spheresourceactor1);
 }
 void KeyPressInteractorStyle::OnKeyPress()
 {

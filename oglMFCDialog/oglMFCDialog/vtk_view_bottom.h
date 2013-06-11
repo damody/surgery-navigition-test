@@ -59,10 +59,25 @@ public:
 	void Render();
 	
 	double Cylinder10_lenth;
-	double niddlePos[6];
+	void GetNiddlePos1(double* v)
+	{
+		v[0] = niddlePos1[0];
+		v[1] = niddlePos1[1];
+		v[2] = niddlePos1[2];
+	}
+	void GetNiddlePos2(double* v)
+	{
+		v[0] = niddlePos2[0];
+		v[1] = niddlePos2[1];
+		v[2] = niddlePos2[2];
+	}
 private:
 	void Draw_robotic_arm();
 	double Cube1_thita,Cylinder5_thita,Cylinder6_thita,Cylinder9_thita,Cylinder10_displace;
+	double niddlePos_tmp1[6];
+	double niddlePos1[3];
+	double niddlePos_tmp2[3];
+	double niddlePos2[3];
 	
 };
 

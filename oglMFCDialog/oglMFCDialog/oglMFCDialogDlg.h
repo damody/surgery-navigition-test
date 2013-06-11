@@ -61,10 +61,11 @@ public:
 	CString m_ShowValue_Left;
 	afx_msg void OnStnClickedCenterValue();
 	void getcoordinate(double* a);
-	
 	double m_showvalue_X;
 	double m_editcontrol_showX;
 	afx_msg void OnEnUpdateEdit1();
 	double m_showvalue_Y;
 	double m_showvalue_Z;
+	double m_start[3];
+	double m_end[3];
 };

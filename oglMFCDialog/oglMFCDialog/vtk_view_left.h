@@ -11,6 +11,11 @@
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
 #include <vtkSphereSource.h>
+#include <vtkCylinderSource.h>
+#include <vtkTransformPolyDataFilter.h>
+#include <vtkTransform.h>
+#include "vtkBounds.h"
+#include <vtkPolyDataMapper.h>
 #include <vtkImagePlaneWidget.h>
 #include <vtkInteractorStyleTrackballActor.h>
 #include <vtkInteractorStyleTrackballCamera.h>
@@ -28,11 +33,11 @@ public:
 	vtkOrientationMarkerWidget_Sptr	m_Axes_widget;
 	vtkInteractorStyleTrackballCamera_Sptr	m_style;
 	vtkDICOMImageReader_Sptr	m_DICOM;
-	vtkContourFilter_Sptr		m_SkinExtractor;
-	vtkPolyDataNormals_Sptr		m_SkinNormals;
 	vtkPolyDataMapper_Sptr		m_PolyMapper;
 	vtkActor_Sptr				m_skinActor;
 	vtkImagePlaneWidget_Sptr	m_planeWidget;
+	vtkActor_Sptr m_tubeActor;
+	bool m_init;
 	HWND	m_hwnd;
 	double	m_cubePos[3];
 	vtk_view_left(void);
@@ -50,5 +55,8 @@ public:
 		m_cubePos[1] = y;
 		m_cubePos[2] = z;
 	}
+	double centerpos[3];
+	void SetCylinder(double* start, double* end);
+
 };
 
