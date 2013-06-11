@@ -61,6 +61,8 @@ CoglMFCDialogDlg::CoglMFCDialogDlg(CWnd* pParent /*=NULL*/)
 	
 	, m_showvalue_X(0)
 	, m_editcontrol_showX(0)
+	, m_showvalue_Y(0)
+	, m_showvalue_Z(0)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -79,7 +81,8 @@ void CoglMFCDialogDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_LEFT_VALUE, m_ShowValue_Left);
 
 	DDX_Text(pDX, IDC_STATIC_X, m_showvalue_X);
-	DDX_Text(pDX, IDC_EDIT1, m_editcontrol_showX);
+	DDX_Text(pDX, IDC_STATIC_Y, m_showvalue_Y);
+	DDX_Text(pDX, IDC_STATIC_Z, m_showvalue_Z);
 }
 
 BEGIN_MESSAGE_MAP(CoglMFCDialogDlg, CDialogEx)
@@ -182,7 +185,7 @@ BOOL CoglMFCDialogDlg::OnInitDialog()
 	//m_oglWindow.oglCreate(rect, GetDlgItem(IDC_OPENGL));
 	// Setup the OpenGL Window's timer to render
 	//m_oglWindow.m_unpTimer = m_oglWindow.SetTimer(1, 1, 0);
-	getcoordinate(m_bottom_vtk.niddlePos);
+	
 	m_ControlSliderLeft.SetRangeMax(1000);
 	return TRUE;  // 傳回 TRUE，除非您對控制項設定焦點
 }
@@ -239,9 +242,10 @@ HCURSOR CoglMFCDialogDlg::OnQueryDragIcon()
 
 void CoglMFCDialogDlg::getcoordinate(double* a)
 {
-	m_showvalue_X =a[1];
-	//return m_showvalue_X ;
-	printf("coordinate x=%f,y=%f,z=%f",a[1]-((a[1]-a[0])/2),a[3]-((a[3]-a[2])/2),a[5]-((a[5]-a[4])/2));  		
+	m_showvalue_X = (a[1]+a[0])/2;
+	m_showvalue_Y = (a[3]+a[2])/2;
+    m_showvalue_Z = (a[5]+a[4])/2;
+	printf("(a[1]+a[0])/2=%f\n", (a[1]+a[0])/2);
 }
 
 void CoglMFCDialogDlg::OnSize(UINT nType, int cx, int cy)
@@ -271,6 +275,8 @@ void CoglMFCDialogDlg::OnTimer(UINT_PTR nIDEvent)
 		m_left_vtk.Render();
 		m_center_vtk.Render();
 		m_right_vtk.Render();
+		getcoordinate(m_bottom_vtk.niddlePos);
+		this->UpdateData(0);
 	}
 }
 

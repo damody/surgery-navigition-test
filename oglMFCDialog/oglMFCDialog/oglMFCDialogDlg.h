@@ -65,4 +65,6 @@ public:
 	double m_showvalue_X;
 	double m_editcontrol_showX;
 	afx_msg void OnEnUpdateEdit1();
+	double m_showvalue_Y;
+	double m_showvalue_Z;
 };

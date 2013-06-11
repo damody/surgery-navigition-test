@@ -269,7 +269,7 @@ void vtk_view_bottom::Render()
 
 		
 		Draw_robotic_arm();
-		printf("x=%f,y=%f,z=%f",niddlePos[1]-((niddlePos[1]-niddlePos[0])/2),niddlePos[3]-((niddlePos[3]-niddlePos[2])/2),niddlePos[5]-((niddlePos[5]-niddlePos[4])/2));  		
+		//printf("x=%f,y=%f,z=%f",niddlePos[1]-((niddlePos[1]-niddlePos[0])/2),niddlePos[3]-((niddlePos[3]-niddlePos[2])/2),niddlePos[5]-((niddlePos[5]-niddlePos[4])/2));  		
 	}
 	m_clipX = m_planeWidgetX->GetSliceIndex();
 	m_clipY = m_planeWidgetY->GetSliceIndex();
