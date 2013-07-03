@@ -342,9 +342,9 @@ void vtk_view_bottom::Render()
 	printf("\n");
 	Cylinder9_thita = 90-data[2] / 200;
 	Cylinder5_thita = data[3] / 200;
-	Cylinder6_thita = data[1] / 200;
-	Cylinder10_displace = 100-data[0] / 200;
-	Cube1_thita = data[5] / 200;
+	Cylinder6_thita = -data[1] / 200;
+	Cylinder10_displace = 100-data[0] / 100;
+	Cube1_thita = -data[5] / 100;
 }
 
 void vtk_view_bottom::SetAlpha( double a )
