@@ -24,7 +24,7 @@ private:
 // 建構
 public:
 	CoglMFCDialogDlg(CWnd* pParent = NULL);	// 標準建構函式
-
+	virtual ~CoglMFCDialogDlg();
 // 對話方塊資料
 	enum { IDD = IDD_OGLMFCDIALOG_DIALOG };
 

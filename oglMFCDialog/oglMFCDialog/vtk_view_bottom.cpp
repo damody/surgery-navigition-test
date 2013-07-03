@@ -3,6 +3,57 @@
 #include "KeyPressInteractorStyle.h"
 #include <vtkTransformFilter.h>
 #include <auto_link_vtk.hpp>
+#include <cstdio>
+#include <windows.h>
+#include <cstdio>
+#include <string>
+
+
+class FileMappingGetter
+{
+public:
+	int	m_BufferSize;
+	HANDLE m_hMapFile;
+	char* m_pBuf;
+	FileMappingGetter():m_BufferSize(1024){}
+	~FileMappingGetter()
+	{
+		UnmapViewOfFile(m_pBuf);
+		CloseHandle(m_hMapFile);
+	}
+	bool OpenShareMemory(std::wstring name)
+	{
+		m_hMapFile = OpenFileMapping(
+			FILE_MAP_ALL_ACCESS,   // read/write access
+			FALSE,                 // do not inherit the name
+			name.c_str());         // name of mapping object
+		if (m_hMapFile == NULL)
+		{
+			return false;
+		}
+		m_pBuf = (char*) MapViewOfFile(m_hMapFile, // handle to map object
+			FILE_MAP_ALL_ACCESS,  // read/write permission
+			0,
+			0,
+			m_BufferSize);
+
+		if (m_pBuf == NULL)
+		{
+			CloseHandle(m_hMapFile);
+
+			return false;
+		}
+		return true;
+	}
+	void GetData(int* data)
+	{
+		for (int i=0;i<6;i++)
+		{
+			data[i] = ((int*)m_pBuf)[i];
+		}
+	}
+};
+
 
 vtkStandardNewMacro(KeyPressInteractorStyle);
 vtk_view_bottom::vtk_view_bottom(void)
@@ -280,6 +331,20 @@ void vtk_view_bottom::Render()
 	m_clipX = m_planeWidgetX->GetSliceIndex();
 	m_clipY = m_planeWidgetY->GetSliceIndex();
 	m_clipZ = m_planeWidgetZ->GetSliceIndex();
+
+	FileMappingGetter fmg;
+	fmg.OpenShareMemory(L"Global\\Lsi5123a");
+	int data[6];
+	fmg.GetData(data);
+	printf("x: %d, ", data[0]);
+	printf("y: %d, ", data[1]);
+	printf("z: %d, ", data[2]);
+	printf("\n");
+	Cylinder9_thita = 90-data[2] / 200;
+	Cylinder5_thita = data[3] / 200;
+	Cylinder6_thita = data[1] / 200;
+	Cylinder10_displace = 100-data[0] / 200;
+	Cube1_thita = data[5] / 200;
 }
 
 void vtk_view_bottom::SetAlpha( double a )
@@ -955,7 +1020,7 @@ void vtk_view_bottom::Draw_robotic_arm()
 }
 void KeyPressInteractorStyle::OnKeyPress()
 {
-	{
+	
 		// Get the keypress
 		vtkRenderWindowInteractor *rwi = this->Interactor;
 		std::string key = rwi->GetKeySym();
@@ -1007,26 +1072,22 @@ void KeyPressInteractorStyle::OnKeyPress()
 
 		}
 		// 控制末端針的前進後退
-		if(key == "e")
-		{
-			vtk->Cylinder10_displace +=1;
 
-		}
-		
-
-	
-	
-
-		// Handle a "normal" key
-		
-		if(key == "d")
+		if(key == "D")
 		{
 			vtk->Cylinder9_thita +=1;
 
 		}
+		// Handle a "normal" key
+		
+		if(key == "d")
+		{
+			vtk->Cylinder9_thita -=1;
+		}
+	
 		// Forward events
 		vtkInteractorStyleTrackballCamera::OnKeyPress();
-	}
+		
 }
 
 void KeyPressInteractorStyle::Set(vtk_view_bottom *v)

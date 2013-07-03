@@ -9,10 +9,7 @@
 #include <stdio.h>
 #include <io.h>
 #include <fcntl.h>
-
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
+#include <cstdio>
 
 
 // 對 App About 使用 CAboutDlg 對話方塊
@@ -58,7 +55,6 @@ CoglMFCDialogDlg::CoglMFCDialogDlg ( CWnd* pParent /*=NULL*/ )
 	, m_ShowValue_Right ( _T ( "" ) )
 	, m_ShowValue_Center ( _T ( "" ) )
 	, m_ShowValue_Left ( _T ( "" ) )
-
 	, m_showvalue_X ( 0 )
 	, m_editcontrol_showX ( 0 )
 	, m_showvalue_Y ( 0 )
@@ -357,5 +353,9 @@ void CoglMFCDialogDlg::OnEnUpdateEdit1()
 	// 要傳送 EM_SETEVENTMASK 訊息到控制項的函式
 	// 將具有 ENM_UPDATE 旗標 ORed 加入 lParam 遮罩。
 	// TODO:  在此加入控制項告知處理常式程式碼
+}
+
+CoglMFCDialogDlg::~CoglMFCDialogDlg()
+{
 }
 

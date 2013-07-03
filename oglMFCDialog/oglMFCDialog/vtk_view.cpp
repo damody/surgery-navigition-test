@@ -95,8 +95,6 @@ void vtk_view::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr dicom 
 	m_RenderWindow->Render();
 	m_RenderWindow->SetSize(w, h);
 
-
-
 	vtkBounds bounding;
 	bounding.SetBounds(imgdata->GetBounds());
 	vtkSmartPointer<vtkActor> actor =
