@@ -59,6 +59,12 @@ CoglMFCDialogDlg::CoglMFCDialogDlg ( CWnd* pParent /*=NULL*/ )
 	, m_editcontrol_showX ( 0 )
 	, m_showvalue_Y ( 0 )
 	, m_showvalue_Z ( 0 )
+	, m_ShowPos2(_T(""))
+	, m_ShowPos1(_T(""))
+	, m_ShowPos3(_T(""))
+	, m_ShowPos4(_T(""))
+	, m_ShowPos5(_T(""))
+	, m_ShowPos6(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon ( IDR_MAINFRAME );
 }
@@ -78,6 +84,12 @@ void CoglMFCDialogDlg::DoDataExchange ( CDataExchange* pDX )
 	DDX_Text ( pDX, IDC_STATIC_X, m_showvalue_X );
 	DDX_Text ( pDX, IDC_STATIC_Y, m_showvalue_Y );
 	DDX_Text ( pDX, IDC_STATIC_Z, m_showvalue_Z );
+	DDX_Text(pDX, IDC_STATIC_P1, m_ShowPos1);
+	DDX_Text(pDX, IDC_STATIC_P2, m_ShowPos2);
+	DDX_Text(pDX, IDC_STATIC_P3, m_ShowPos3);
+	DDX_Text(pDX, IDC_STATIC_P4, m_ShowPos4);
+	DDX_Text(pDX, IDC_STATIC_P5, m_ShowPos5);
+	DDX_Text(pDX, IDC_STATIC_P6, m_ShowPos6);
 }
 
 BEGIN_MESSAGE_MAP ( CoglMFCDialogDlg, CDialogEx )
@@ -93,6 +105,12 @@ BEGIN_MESSAGE_MAP ( CoglMFCDialogDlg, CDialogEx )
 	ON_WM_HSCROLL()
 	ON_STN_CLICKED ( IDC_CENTER_VALUE, &CoglMFCDialogDlg::OnStnClickedCenterValue )
 	ON_EN_UPDATE ( IDC_EDIT1, &CoglMFCDialogDlg::OnEnUpdateEdit1 )
+	ON_BN_CLICKED(IDC_BUTTON1, &CoglMFCDialogDlg::OnBnClickedButton1)
+	ON_BN_CLICKED(IDC_BUTTON2, &CoglMFCDialogDlg::OnBnClickedButton2)
+	ON_BN_CLICKED(IDC_BUTTON3, &CoglMFCDialogDlg::OnBnClickedButton3)
+	ON_BN_CLICKED(IDC_BUTTON4, &CoglMFCDialogDlg::OnBnClickedButton4)
+	ON_BN_CLICKED(IDC_BUTTON5, &CoglMFCDialogDlg::OnBnClickedButton5)
+	ON_BN_CLICKED(IDC_BUTTON6, &CoglMFCDialogDlg::OnBnClickedButton6)
 END_MESSAGE_MAP()
 
 
@@ -145,7 +163,7 @@ BOOL CoglMFCDialogDlg::OnInitDialog()
 	CRect rect;
 	vtkDICOMImageReader_Sptr dicom	= vtkSmartNew;
 	dicom->SetDataByteOrderToLittleEndian();
-	dicom->SetDirectoryName ( "CT_EDU" );
+	dicom->SetDirectoryName ( "kevin_DICOM" );
 	dicom->Update();
 	GetDlgItem ( IDC_OPENGL )->GetWindowRect ( rect );
 	m_bottom_vtk.InitVTK ( GetDlgItem ( IDC_OPENGL )->GetSafeHwnd(), rect.Width(), rect.Height(), dicom );	
@@ -359,3 +377,69 @@ CoglMFCDialogDlg::~CoglMFCDialogDlg()
 {
 }
 
+
+
+void CoglMFCDialogDlg::OnBnClickedButton1()
+{
+	m_bottom_vtk.Get3DCursor(m_P1);
+	wchar_t buffer[100];
+	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_P1[0], m_P1[1], m_P1[2]);
+	wprintf(buffer);
+	m_ShowPos1.SetString(buffer);
+	this->UpdateData(FALSE);
+}
+
+
+void CoglMFCDialogDlg::OnBnClickedButton2()
+{
+	m_bottom_vtk.Get3DCursor(m_P2);
+	wchar_t buffer[100];
+	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_P2[0], m_P2[1], m_P2[2]);
+	wprintf(buffer);
+	m_ShowPos2.SetString(buffer);
+	this->UpdateData(FALSE);
+}
+
+
+void CoglMFCDialogDlg::OnBnClickedButton3()
+{
+	m_bottom_vtk.Get3DCursor(m_P3);
+	wchar_t buffer[100];
+	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_P3[0], m_P3[1], m_P3[2]);
+	wprintf(buffer);
+	m_ShowPos3.SetString(buffer);
+	this->UpdateData(FALSE);
+}
+
+
+void CoglMFCDialogDlg::OnBnClickedButton4()
+{
+	m_bottom_vtk.Get3DCursor(m_P4);
+	wchar_t buffer[100];
+	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_P4[0], m_P4[1], m_P4[2]);
+	wprintf(buffer);
+	m_ShowPos4.SetString(buffer);
+	this->UpdateData(FALSE);
+}
+
+
+void CoglMFCDialogDlg::OnBnClickedButton5()
+{
+	m_bottom_vtk.Get3DCursor(m_P5);
+	wchar_t buffer[100];
+	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_P5[0], m_P5[1], m_P5[2]);
+	wprintf(buffer);
+	m_ShowPos5.SetString(buffer);
+	this->UpdateData(FALSE);
+}
+
+
+void CoglMFCDialogDlg::OnBnClickedButton6()
+{
+	m_bottom_vtk.Get3DCursor(m_P6);
+	wchar_t buffer[100];
+	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_P6[0], m_P6[1], m_P6[2]);
+	wprintf(buffer);
+	m_ShowPos6.SetString(buffer);
+	this->UpdateData(FALSE);
+}

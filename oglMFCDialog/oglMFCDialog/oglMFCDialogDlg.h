@@ -9,6 +9,7 @@
 #include "vtk_view_right.h"
 #include "vtk_view_bottom.h"
 #include "afxcmn.h"
+#include "afxwin.h"
 
 
 
@@ -68,4 +69,22 @@ public:
 	double m_showvalue_Z;
 	double m_start[3];
 	double m_end[3];
+	double m_P1[3];
+	double m_P2[3];
+	double m_P3[3];
+	double m_P4[3];
+	double m_P5[3];
+	double m_P6[3];
+	afx_msg void OnBnClickedButton1();
+	afx_msg void OnBnClickedButton2();
+	afx_msg void OnBnClickedButton3();
+	afx_msg void OnBnClickedButton4();
+	afx_msg void OnBnClickedButton5();
+	afx_msg void OnBnClickedButton6();
+	CString m_ShowPos2;
+	CString m_ShowPos1;
+	CString m_ShowPos3;
+	CString m_ShowPos4;
+	CString m_ShowPos5;
+	CString m_ShowPos6;
 };

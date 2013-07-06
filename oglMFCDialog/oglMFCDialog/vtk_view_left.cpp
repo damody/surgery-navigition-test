@@ -95,7 +95,6 @@ void vtk_view_left::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr d
 	m_Axes_widget->SetInteractor(m_WindowInteractor);
 	m_Axes_widget->On();
 	m_RenderWindow->SetParentId(hwnd);
-	m_RenderWindow->Render();
 	m_RenderWindow->SetSize(w, h);
 
 	vtkBounds bounding;

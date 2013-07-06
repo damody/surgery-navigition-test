@@ -8,7 +8,6 @@
 #include <cstdio>
 #include <string>
 
-
 class FileMappingGetter
 {
 public:
@@ -92,20 +91,20 @@ vtkImageData_Sptr InverseZ(vtkImageData* imgdata)
 			}
 		}
 	}
-	
-// 	polydata->SetPoints(input_points);
-// 	polydata->GetPointData()->SetScalars(input_scalars);
+
+	// 	polydata->SetPoints(input_points);
+	// 	polydata->GetPointData()->SetScalars(input_scalars);
 	imgdata->GetPointData()->SetScalars(input_scalars);
 	return imgdata;
 }
 
 void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr dicom )
 {
-	m_hwnd = CreateWindowA("edit", "", WS_CHILD | WS_DISABLED | WS_VISIBLE
-		, 0, 0, w, h, hwnd, 
-		(HMENU)"", GetModuleHandle(NULL), NULL);
-	ShowWindow(m_hwnd, true);
-	UpdateWindow(m_hwnd);
+// 	m_hwnd = CreateWindowA("edit", "", WS_CHILD | WS_DISABLED | WS_VISIBLE
+// 		, 0, 0, w, h, hwnd, 
+// 		(HMENU)"", GetModuleHandle(NULL), NULL);
+// 	ShowWindow(m_hwnd, true);
+// 	UpdateWindow(m_hwnd);
 	m_hwnd = hwnd;
 	m_DICOM = dicom;
 	vtkImageData_Sptr imgdata = vtkSmartNew;
@@ -118,9 +117,9 @@ void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr
 	vtkIdType count = imgdata->GetPointData()->GetScalars()->GetNumberOfTuples();
 	printf("%d\n", imgdata->GetDataDimension());
 	printf("%d %d %d %d %d %d \n", ext[0], ext[1], ext[2], ext[3], ext[4], ext[5]);
-// 	ext[4] = ext[4]-ext[5]*2;
-// 	ext[5] = ext[5]-ext[5]*2;
-// 	imgdata->SetExtent(ext);
+	ext[2] -= 1000;
+	ext[3] -= 1000;
+ 	imgdata->SetExtent(ext);
 
 	imgdata->GetBounds(Bounds);
 	printf("%f %f %f %f %f %f \n", Bounds[0], Bounds[1], Bounds[2], Bounds[3], Bounds[4], Bounds[5]);
@@ -137,6 +136,15 @@ void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr
 	printf("%f %f %f %f %f %f \n", Bounds[0], Bounds[1], Bounds[2], Bounds[3], Bounds[4], Bounds[5]);
 
 	InverseZ(imgdata);
+	vtkSmartPointer<vtkPolyData> inputPolyData;
+
+	vtkSmartPointer<vtkSphereSource> sphereSource =
+		vtkSmartPointer<vtkSphereSource>::New();
+	sphereSource->SetPhiResolution(15);
+	sphereSource->SetThetaResolution(15);
+	sphereSource->Update();
+	inputPolyData = sphereSource->GetOutput();
+
 
 	m_SkinExtractor = vtkSmartNew;
 	m_SkinExtractor->SetInput(imgdata);
@@ -165,7 +173,7 @@ void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr
 	m_RenderWindow->AddRenderer(m_Renderer);
 	m_WindowInteractor->SetRenderWindow(m_RenderWindow);
 	m_WindowInteractor->SetInteractorStyle(m_style);
-	m_WindowInteractor->EnableRenderOn();
+	//m_WindowInteractor->EnableRenderOn();
 	m_Renderer->SetActiveCamera(m_Camera);
 	m_Renderer->SetBackground(.0, .0, .0);
 	// reference coordinate frame color
@@ -174,8 +182,7 @@ void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr
 	m_Axes_widget->SetInteractor(m_WindowInteractor);
 	m_Axes_widget->On();
 	
-	m_RenderWindow->SetParentId(hwnd);
-	m_RenderWindow->Render();
+	m_RenderWindow->SetParentId(m_hwnd);
 	m_RenderWindow->SetSize(w, h);
 	
 	//volume rendering
@@ -196,14 +203,7 @@ void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr
  	compositeOpacity->AddPoint(g_min+step*4, 1);
  	compositeOpacity->AddPoint(g_min+step*5, 1);
  	compositeOpacity->AddPoint(g_min+step*6, 1);
-// 	compositeOpacity->AddPoint(70.0, 0.0);
-// 	compositeOpacity->AddPoint(599.0, 0);
-// 	compositeOpacity->AddPoint(600.0, 0);
-// 	compositeOpacity->AddPoint(1195.0, 0);
-// 	compositeOpacity->AddPoint(1200, 0.2);
-// 	compositeOpacity->AddPoint(1300, 0.3);
-// 	compositeOpacity->AddPoint(2000, 0.3);
-// 	compositeOpacity->AddPoint(4095.0, 1.0);
+
 	volumeProperty->SetScalarOpacity(compositeOpacity);	// composite first.
 // 	volumeProperty->SetDiffuse(0.2);
 // 	volumeProperty->ShadeOff();
@@ -236,10 +236,8 @@ void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr
 	m_Camera->SetFocalPoint(bounding.Xmid(), bounding.Ymid(), bounding.Zmid());
 	// Add the actors to the scene
 	//m_Renderer->AddActor(actor);
-
 	//m_Renderer->AddActor(m_skinActor);
-
-
+	
 	m_planeWidgetX = vtkSmartNew;
 	m_planeWidgetX->SetInteractor(m_WindowInteractor);
 	m_planeWidgetX->RestrictPlaneToVolumeOn();
@@ -247,7 +245,7 @@ void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr
 	m_planeWidgetX->SetPlaneOrientationToXAxes();
 	m_planeWidgetX->GetColorMap()->SetLookupTable(colorTransferFunction);
 	m_planeWidgetX->UpdatePlacement();
-	m_planeWidgetX->On();
+	//m_planeWidgetX->On();
 
 	m_planeWidgetY = vtkSmartNew;
 	m_planeWidgetY->SetInteractor(m_WindowInteractor);
@@ -256,7 +254,7 @@ void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr
 	m_planeWidgetY->SetPlaneOrientationToYAxes();
 	m_planeWidgetY->GetColorMap()->SetLookupTable(colorTransferFunction);
 	m_planeWidgetY->UpdatePlacement();
-	m_planeWidgetY->On();
+	//m_planeWidgetY->On();
 
 	m_planeWidgetZ = vtkSmartNew;
 	m_planeWidgetZ->SetInteractor(m_WindowInteractor);
@@ -265,16 +263,41 @@ void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr
 	m_planeWidgetZ->SetPlaneOrientationToZAxes();
 	m_planeWidgetZ->GetColorMap()->SetLookupTable(colorTransferFunction);
 	m_planeWidgetZ->UpdatePlacement();
-	m_planeWidgetZ->On();
+	//m_planeWidgetZ->On();
 
+
+	vtkSmartPointer<vtkConeSource> cone =
+		vtkSmartPointer<vtkConeSource>::New();
+	cone->SetResolution(16);
+	cone->SetHeight(5);
+	cone->SetRadius(2.5);
+	vtkSmartPointer<vtkPolyDataMapper> glyphMapper =
+		vtkSmartPointer<vtkPolyDataMapper>::New();
+	glyphMapper->SetInputConnection(cone->GetOutputPort());
+	vtkSmartPointer<vtkActor> glyphActor =
+		vtkSmartPointer<vtkActor>::New();
+	glyphActor->SetMapper(glyphMapper);
+	//glyphActor->VisibilityOn();
+	m_Renderer->AddActor(glyphActor);
+	m_vtkmyPWCallback =
+		vtkSmartPointer<vtkmyPWCallback>::New();
+	m_vtkmyPWCallback->CursorActor = glyphActor;
+	m_pointWidget = vtkSmartPointer<vtkPointWidget>::New();
+	m_pointWidget->SetInteractor(m_WindowInteractor);
+	m_pointWidget->SetInput(imgdata);
+	m_pointWidget->AllOff();
+	m_pointWidget->PlaceWidget();
+	m_pointWidget->AddObserver(vtkCommand::InteractionEvent, m_vtkmyPWCallback);
+	m_pointWidget->On();
+	
 	// 
 	// 	// Begin mouse interaction
 	// 	
-	vtkSmartPointer<KeyPressInteractorStyle> style = 
-		vtkSmartPointer<KeyPressInteractorStyle>::New();
-	style->Set(this);
-	m_WindowInteractor->SetInteractorStyle(style);
-	style->SetCurrentRenderer(m_Renderer);
+// 	vtkSmartPointer<KeyPressInteractorStyle> style = 
+// 		vtkSmartPointer<KeyPressInteractorStyle>::New();
+// 	style->Set(this);
+// 	m_WindowInteractor->SetInteractorStyle(style);
+//	style->SetCurrentRenderer(m_Renderer);
 }  
 
 void vtk_view_bottom::Render()
@@ -340,11 +363,11 @@ void vtk_view_bottom::Render()
 	printf("y: %d, ", data[1]);
 	printf("z: %d, ", data[2]);
 	printf("\n");
-	Cylinder9_thita = 90-data[2] / 200;
-	Cylinder5_thita = data[3] / 200;
-	Cylinder6_thita = -data[1] / 200;
-	Cylinder10_displace = 100-data[0] / 100;
-	Cube1_thita = -data[5] / 100;
+	Cylinder9_thita = 90-data[2] / 227.556;
+	Cylinder5_thita = data[3] / 227.556;
+	Cylinder6_thita = -data[1] / 227.556;
+	Cylinder10_displace = 97-data[0] / 78.3;
+	Cube1_thita = -data[5] / 45.5;
 }
 
 void vtk_view_bottom::SetAlpha( double a )
@@ -916,7 +939,7 @@ void vtk_view_bottom::Draw_robotic_arm()
 	CylinderSource10 =vtkCylinderSource::New();
 	//CylinderSource8->SetCenter(36,-557,-37);
 	CylinderSource10->SetRadius(1.0);
-	CylinderSource10->SetHeight(200+Cylinder10_lenth);
+	CylinderSource10->SetHeight(200);
 	CylinderSource10->SetResolution(100);
 	CylinderSource10 ->Update();
 
@@ -924,7 +947,7 @@ void vtk_view_bottom::Draw_robotic_arm()
 	//transform->RotateWXYZ(double angle, double x, double y, double z);
 	transform10->SetMatrix(transform9->GetMatrix());
 	
-	transform10->Translate(102+Cylinder10_displace,0,-10);
+	transform10->Translate(142+Cylinder10_displace,0,-10);
 	transform10->RotateWXYZ(90, 0, 0, 1);
 	//transform10->Translate(Cylinder10_displace,0,0)
 	vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter10 = 
@@ -952,7 +975,7 @@ void vtk_view_bottom::Draw_robotic_arm()
 	//transform->RotateWXYZ(double angle, double x, double y, double z);
 	transform_spheresource->SetMatrix(transform9->GetMatrix());
 
-	transform_spheresource->Translate(202+Cylinder10_displace,0,-10);
+	transform_spheresource->Translate(142+Cylinder10_displace,0,-10);
 
 	vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter_spheresource = 
 		vtkSmartPointer<vtkTransformPolyDataFilter>::New();

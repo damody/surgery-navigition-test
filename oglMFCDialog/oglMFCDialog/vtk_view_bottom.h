@@ -19,7 +19,46 @@
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkLineSource.h>
 #include "KeyPressInteractorStyle.h"
+#include <vtkVersion.h>
+#include "vtkSmartPointer.h"
 
+#include "vtkActor.h"
+#include "vtkProperty.h"
+#include "vtkCommand.h"
+#include "vtkConeSource.h"
+#include "vtkSphereSource.h"
+#include "vtkGlyph3D.h"
+#include "vtkPointWidget.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProbeFilter.h"
+#include "vtkProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkTextActor.h"
+#include "vtkTextProperty.h"
+#include "vtkXMLPolyDataReader.h"
+
+
+class vtkmyPWCallback : public vtkCommand
+{
+public:
+	static vtkmyPWCallback *New() 
+	{
+		return new vtkmyPWCallback;
+	}
+	virtual void Execute(vtkObject *caller, unsigned long, void*)
+	{
+		vtkPointWidget *pointWidget = reinterpret_cast<vtkPointWidget*>(caller);
+		pointWidget->GetPosition(position);
+		this->CursorActor->VisibilityOn();
+		this->CursorActor->SetPosition(position);
+	}
+	vtkmyPWCallback():CursorActor(0) {}
+	double position[3];
+	vtkActor     *CursorActor;
+};
 
 
 class vtk_view_bottom
@@ -47,7 +86,8 @@ public:
 	vtkSmartVolumeMapper_Sptr	volumeMapper;
 	vtkVolumeProperty_Sptr		volumeProperty;
 	vtkVolume_Sptr				m_volume;
-	
+	vtkSmartPointer<vtkPointWidget> m_pointWidget;
+	vtkSmartPointer<vtkmyPWCallback> m_vtkmyPWCallback;
 	
 	int		m_clipX, m_clipY, m_clipZ;
 	HWND	m_hwnd;
@@ -57,6 +97,10 @@ public:
 	void InitVTK(HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr dicom);
 	void SetAlpha(double a);
 	void Render();
+	void Get3DCursor(double* position)
+	{
+		memcpy(position, m_vtkmyPWCallback->position, sizeof (double)*3);
+	}
 	
 	double Cylinder10_lenth;
 	void GetNiddlePos1(double* v)
