@@ -88,7 +88,9 @@ public:
 	vtkVolume_Sptr				m_volume;
 	vtkSmartPointer<vtkPointWidget> m_pointWidget;
 	vtkSmartPointer<vtkmyPWCallback> m_vtkmyPWCallback;
-	
+	vtkImageData_Sptr m_imgdata;
+
+
 	int		m_clipX, m_clipY, m_clipZ;
 	HWND	m_hwnd;
 	double  m_alpha;
@@ -101,7 +103,10 @@ public:
 	{
 		memcpy(position, m_vtkmyPWCallback->position, sizeof (double)*3);
 	}
-	
+	void Get3DCursorR(double* position)
+	{
+		memcpy(position, niddlePos1, sizeof (double)*3);
+	}
 	double Cylinder10_lenth;
 	void GetNiddlePos1(double* v)
 	{
@@ -115,6 +120,8 @@ public:
 		v[1] = niddlePos2[1];
 		v[2] = niddlePos2[2];
 	}
+   void MovePatientPosition(double x, double y, double z);
+   
 private:
 	void Draw_robotic_arm();
 	double Cube1_thita,Cylinder5_thita,Cylinder6_thita,Cylinder9_thita,Cylinder10_displace;
@@ -122,6 +129,6 @@ private:
 	double niddlePos1[3];
 	double niddlePos_tmp2[3];
 	double niddlePos2[3];
-	
+	double m_Offset[3];	
 };
 

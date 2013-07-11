@@ -65,6 +65,12 @@ CoglMFCDialogDlg::CoglMFCDialogDlg ( CWnd* pParent /*=NULL*/ )
 	, m_ShowPos4(_T(""))
 	, m_ShowPos5(_T(""))
 	, m_ShowPos6(_T(""))
+	, m_ShowRPos1(_T(""))
+	, m_ShowRPos2(_T(""))
+	, m_ShowRPos3(_T(""))
+	, m_ShowRPos4(_T(""))
+	, m_ShowRPos5(_T(""))
+	, m_ShowRPos6(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon ( IDR_MAINFRAME );
 }
@@ -90,6 +96,12 @@ void CoglMFCDialogDlg::DoDataExchange ( CDataExchange* pDX )
 	DDX_Text(pDX, IDC_STATIC_P4, m_ShowPos4);
 	DDX_Text(pDX, IDC_STATIC_P5, m_ShowPos5);
 	DDX_Text(pDX, IDC_STATIC_P6, m_ShowPos6);
+	DDX_Text(pDX, IDC_STATIC_RP1, m_ShowRPos1);
+	DDX_Text(pDX, IDC_STATIC_RP2, m_ShowRPos2);
+	DDX_Text(pDX, IDC_STATIC_RP3, m_ShowRPos3);
+	DDX_Text(pDX, IDC_STATIC_RP4, m_ShowRPos4);
+	DDX_Text(pDX, IDC_STATIC_RP5, m_ShowRPos5);
+	DDX_Text(pDX, IDC_STATIC_RP6, m_ShowRPos6);
 }
 
 BEGIN_MESSAGE_MAP ( CoglMFCDialogDlg, CDialogEx )
@@ -111,6 +123,13 @@ BEGIN_MESSAGE_MAP ( CoglMFCDialogDlg, CDialogEx )
 	ON_BN_CLICKED(IDC_BUTTON4, &CoglMFCDialogDlg::OnBnClickedButton4)
 	ON_BN_CLICKED(IDC_BUTTON5, &CoglMFCDialogDlg::OnBnClickedButton5)
 	ON_BN_CLICKED(IDC_BUTTON6, &CoglMFCDialogDlg::OnBnClickedButton6)
+	ON_BN_CLICKED(IDC_BUTTON7, &CoglMFCDialogDlg::OnBnClickedButton7)
+	ON_BN_CLICKED(IDC_BUTTON8, &CoglMFCDialogDlg::OnBnClickedButton8)
+	ON_BN_CLICKED(IDC_BUTTON9, &CoglMFCDialogDlg::OnBnClickedButton9)
+	ON_BN_CLICKED(IDC_BUTTON10, &CoglMFCDialogDlg::OnBnClickedButton10)
+	ON_BN_CLICKED(IDC_BUTTON11, &CoglMFCDialogDlg::OnBnClickedButton11)
+	ON_BN_CLICKED(IDC_BUTTON12, &CoglMFCDialogDlg::OnBnClickedButton12)
+	ON_BN_CLICKED(IDC_BUTTON_Registration, &CoglMFCDialogDlg::OnBnClickedButtonRegistration)
 END_MESSAGE_MAP()
 
 
@@ -185,9 +204,6 @@ BOOL CoglMFCDialogDlg::OnInitDialog()
 	m_ControlSliderLeft.SetRangeMax ( 1000 );
 
 	this->SetTimer ( IDC_OPENGL, 10, 0 );
-	this->SetTimer ( IDC_LEFT_VTK, 10, 0 );
-	this->SetTimer ( IDC_CENTER_VTK, 10, 0 );
-	this->SetTimer ( IDC_RIGHT_VTK, 10, 0 );
 	return TRUE;  // 傳回 TRUE，除非您對控制項設定焦點
 }
 
@@ -240,9 +256,9 @@ HCURSOR CoglMFCDialogDlg::OnQueryDragIcon()
 
 void CoglMFCDialogDlg::getcoordinate ( double* a )
 {
-	m_showvalue_X = ( a[1]+a[0] ) /2;
-	m_showvalue_Y = ( a[3]+a[2] ) /2;
-	m_showvalue_Z = ( a[5]+a[4] ) /2;
+	m_showvalue_X = a[0];
+	m_showvalue_Y = a[1];
+	m_showvalue_Z = a[2];
 }
 
 void CoglMFCDialogDlg::OnSize ( UINT nType, int cx, int cy )
@@ -257,27 +273,24 @@ void CoglMFCDialogDlg::OnTimer ( UINT_PTR nIDEvent )
 	// TODO: 在此加入您的訊息處理常式程式碼和 (或) 呼叫預設值
 	CDialogEx::OnTimer ( nIDEvent );
 	
-	if ( nIDEvent == IDC_LEFT_VTK )
-	{
-		m_bottom_vtk.Render();
-		m_left_vtk.SetClip ( m_bottom_vtk.m_clipX );
-		m_center_vtk.SetClip ( m_bottom_vtk.m_clipY );
-		m_right_vtk.SetClip ( m_bottom_vtk.m_clipZ );
-		m_left_vtk.SetCubePos ( m_bottom_vtk.m_clipX, m_bottom_vtk.m_clipY, m_bottom_vtk.m_clipZ*10 );
-		m_center_vtk.SetCubePos ( m_bottom_vtk.m_clipX, m_bottom_vtk.m_clipY, m_bottom_vtk.m_clipZ*10 );
-		m_right_vtk.SetCubePos ( m_bottom_vtk.m_clipX, m_bottom_vtk.m_clipY, m_bottom_vtk.m_clipZ*10 );
-		m_left_vtk.Render();
-		m_center_vtk.Render();
-		m_right_vtk.Render();
-		double tmp1[3], tmp2[3];
-		m_bottom_vtk.GetNiddlePos1(tmp1);
-		m_bottom_vtk.GetNiddlePos2(tmp2);
-		getcoordinate ( tmp1 );
-		m_left_vtk.SetCylinder(tmp1, tmp2);
- 		m_right_vtk.SetCylinder(tmp1, tmp2);
- 		m_center_vtk.SetCylinder(tmp1, tmp2);
-		this->UpdateData ( 0 );
-	}
+	m_bottom_vtk.Render();
+	m_left_vtk.SetClip ( m_bottom_vtk.m_clipX );
+	m_center_vtk.SetClip ( m_bottom_vtk.m_clipY );
+	m_right_vtk.SetClip ( m_bottom_vtk.m_clipZ );
+	m_left_vtk.SetCubePos ( m_bottom_vtk.m_clipX, m_bottom_vtk.m_clipY, m_bottom_vtk.m_clipZ*10 );
+	m_center_vtk.SetCubePos ( m_bottom_vtk.m_clipX, m_bottom_vtk.m_clipY, m_bottom_vtk.m_clipZ*10 );
+	m_right_vtk.SetCubePos ( m_bottom_vtk.m_clipX, m_bottom_vtk.m_clipY, m_bottom_vtk.m_clipZ*10 );
+	m_left_vtk.Render();
+	m_center_vtk.Render();
+	m_right_vtk.Render();
+	double tmp1[3], tmp2[3];
+	m_bottom_vtk.GetNiddlePos1(tmp1);
+	m_bottom_vtk.GetNiddlePos2(tmp2);
+	getcoordinate ( tmp1 );
+	m_left_vtk.SetCylinder(tmp1, tmp2);
+	m_right_vtk.SetCylinder(tmp1, tmp2);
+	m_center_vtk.SetCylinder(tmp1, tmp2);
+	this->UpdateData ( 0 );
 }
 
 
@@ -384,6 +397,7 @@ void CoglMFCDialogDlg::OnBnClickedButton1()
 	m_bottom_vtk.Get3DCursor(m_P1);
 	wchar_t buffer[100];
 	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_P1[0], m_P1[1], m_P1[2]);
+	//swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", 650.95,-79.48,-275.62);
 	wprintf(buffer);
 	m_ShowPos1.SetString(buffer);
 	this->UpdateData(FALSE);
@@ -395,6 +409,7 @@ void CoglMFCDialogDlg::OnBnClickedButton2()
 	m_bottom_vtk.Get3DCursor(m_P2);
 	wchar_t buffer[100];
 	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_P2[0], m_P2[1], m_P2[2]);
+	//swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f",602.63 ,-29.20 ,-259.48);
 	wprintf(buffer);
 	m_ShowPos2.SetString(buffer);
 	this->UpdateData(FALSE);
@@ -406,6 +421,7 @@ void CoglMFCDialogDlg::OnBnClickedButton3()
 	m_bottom_vtk.Get3DCursor(m_P3);
 	wchar_t buffer[100];
 	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_P3[0], m_P3[1], m_P3[2]);
+	//swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f",556.86 ,-52.77 ,-263.66 );
 	wprintf(buffer);
 	m_ShowPos3.SetString(buffer);
 	this->UpdateData(FALSE);
@@ -417,6 +433,7 @@ void CoglMFCDialogDlg::OnBnClickedButton4()
 	m_bottom_vtk.Get3DCursor(m_P4);
 	wchar_t buffer[100];
 	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_P4[0], m_P4[1], m_P4[2]);
+	//swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f",593.56 ,-102.55,-240.46);
 	wprintf(buffer);
 	m_ShowPos4.SetString(buffer);
 	this->UpdateData(FALSE);
@@ -442,4 +459,97 @@ void CoglMFCDialogDlg::OnBnClickedButton6()
 	wprintf(buffer);
 	m_ShowPos6.SetString(buffer);
 	this->UpdateData(FALSE);
+}
+
+
+void CoglMFCDialogDlg::OnBnClickedButton7()
+{
+	m_bottom_vtk.Get3DCursorR(m_RP1);
+	wchar_t buffer[100];
+	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_RP1[0], m_RP1[1], m_RP1[2]);
+	wprintf(buffer);
+	m_ShowRPos1.SetString(buffer);
+	this->UpdateData(FALSE);
+}
+
+
+void CoglMFCDialogDlg::OnBnClickedButton8()
+{
+	m_bottom_vtk.Get3DCursorR(m_RP2);
+	wchar_t buffer[100];
+	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_RP2[0], m_RP2[1], m_RP2[2]);
+	wprintf(buffer);
+	m_ShowRPos2.SetString(buffer);
+	this->UpdateData(FALSE);
+}
+
+
+void CoglMFCDialogDlg::OnBnClickedButton9()
+{
+
+	m_bottom_vtk.Get3DCursorR(m_RP3);
+	wchar_t buffer[100];
+	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_RP3[0], m_RP3[1], m_RP3[2]);
+	wprintf(buffer);
+	m_ShowRPos3.SetString(buffer);
+	this->UpdateData(FALSE);
+}
+
+
+void CoglMFCDialogDlg::OnBnClickedButton10()
+{
+	m_bottom_vtk.Get3DCursorR(m_RP4);
+	wchar_t buffer[100];
+	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_RP4[0], m_RP4[1], m_RP4[2]);
+	wprintf(buffer);
+	m_ShowRPos4.SetString(buffer);
+	this->UpdateData(FALSE);
+}
+
+
+void CoglMFCDialogDlg::OnBnClickedButton11()
+{
+	m_bottom_vtk.Get3DCursorR(m_RP5);
+	wchar_t buffer[100];
+	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_RP5[0], m_RP5[1], m_RP5[2]);
+	wprintf(buffer);
+	m_ShowRPos5.SetString(buffer);
+	this->UpdateData(FALSE);
+}
+
+
+void CoglMFCDialogDlg::OnBnClickedButton12()
+{
+	m_bottom_vtk.Get3DCursorR(m_RP6);
+	wchar_t buffer[100];
+	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_RP6[0], m_RP6[1], m_RP6[2]);
+	wprintf(buffer);
+	m_ShowRPos6.SetString(buffer);
+	this->UpdateData(FALSE);
+}
+
+
+void CoglMFCDialogDlg::OnBnClickedButtonRegistration()
+{
+	double tmp[3],tmpr[3];
+	// TODO: 在此加入控制項告知處理常式程式碼
+//  	tmp[0]=(m_P1[0]+m_P2[0]+m_P3[0]+m_P4[0])/4;
+//  	tmp[1]=(m_P1[1]+m_P2[1]+m_P3[1]+m_P4[1])/4;
+//  	tmp[2]=(m_P1[2]+m_P2[2]+m_P3[2]+m_P4[2])/4;
+	tmp[0]=(650.95+593.56+602.63+556.86)/4;
+	tmp[1]=(-79.48-29.20-52.77-102.55)/4;
+	tmp[2]=(-275.62-259.48-263.66-240.46)/4;
+//  	tmpr[0]=(m_RP1[0]+m_RP2[0]+m_RP3[0]+m_RP4[0])/4;
+//  	tmpr[1]=(m_RP1[1]+m_RP2[1]+m_RP3[1]+m_RP4[1])/4;
+//  	tmpr[2]=(m_RP1[2]+m_RP2[2]+m_RP3[2]+m_RP4[2])/4;
+ 	tmpr[0]=(637.29+588.97+543.20+579.90)/4;
+	tmpr[1]=(87.71+137.99+114.42-14.84)/4;
+	tmpr[2]=(-229.97-213.83-218.1-194.81)/4;
+	//m_bottom_vtk.MovePatientPosition(m_RP1[0]-(m_P1[0]-42),m_RP1[1]-(m_P1[1]+32),m_RP1[2]-(m_P1[2]+87));
+	m_bottom_vtk.MovePatientPosition(tmpr[0]-tmp[0]-10,tmpr[1]-tmp[1]+35,tmpr[2]-tmp[2]-87);
+	//registrationvector[3]=(tmpr[0]-tmp[0],tmpr[1]-tmp[1],tmpr[2]-tmp[2]);
+	
+	this->UpdateData(FALSE);
+
+	
 }

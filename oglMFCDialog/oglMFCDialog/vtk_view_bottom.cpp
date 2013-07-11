@@ -71,6 +71,7 @@ vtkImageData_Sptr InverseZ(vtkImageData* imgdata)
 {
 	vtkPolyData_Sptr polydata = vtkSmartNew;
 	vtkPoints_Sptr input_points = vtkSmartNew;
+	vtkDoubleArray_Sptr input_scalars_tmp = vtkSmartNew;
 	vtkDoubleArray_Sptr input_scalars = vtkSmartNew;
 
 	int nx, ny, nz, dim[3];
@@ -79,6 +80,7 @@ vtkImageData_Sptr InverseZ(vtkImageData* imgdata)
 	nx = dim[0];
 	ny = dim[1];
 	nz = dim[2];
+	printf("%d %d %d\n", nx, ny, nz);
 	std::vector<double> data;
 	for (int k=0;k<nz;++k)
 	{
@@ -86,14 +88,24 @@ vtkImageData_Sptr InverseZ(vtkImageData* imgdata)
 		{
 			for (int i=0;i<nx;++i)
 			{
-				input_points->InsertNextPoint(i, j, k);
-				input_scalars->InsertNextTuple1(imgdata->GetPointData()->GetScalars()->GetTuple1(i+nx*j+nx*ny*(nz-k-1)));
+				input_scalars_tmp->InsertNextTuple1(imgdata->GetPointData()->GetScalars()->GetTuple1(i+nx*j+nx*ny*(nz-k-1)));
 			}
 		}
 	}
-
+	for (int j=0;j<ny;++j)
+	{
+		for (int k=0;k<nz;++k)
+		{
+			for (int i=0;i<nx;++i)
+			{
+				input_points->InsertNextPoint(i, k, j);
+				input_scalars->InsertNextTuple1(input_scalars_tmp->GetTuple1(i+nx*j+nx*ny*k));
+			}
+		}
+	}
 	// 	polydata->SetPoints(input_points);
 	// 	polydata->GetPointData()->SetScalars(input_scalars);
+	imgdata->SetDimensions(512,655,512);
 	imgdata->GetPointData()->SetScalars(input_scalars);
 	return imgdata;
 }
@@ -107,35 +119,38 @@ void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr
 // 	UpdateWindow(m_hwnd);
 	m_hwnd = hwnd;
 	m_DICOM = dicom;
-	vtkImageData_Sptr imgdata = vtkSmartNew;
-	imgdata->DeepCopy(m_DICOM->GetOutput(0));
+	m_imgdata = vtkSmartNew;
+	m_imgdata->DeepCopy(m_DICOM->GetOutput(0));
 	
 
 	double Bounds[6];
 	int ext[6];
-	imgdata->GetExtent(ext);
-	vtkIdType count = imgdata->GetPointData()->GetScalars()->GetNumberOfTuples();
-	printf("%d\n", imgdata->GetDataDimension());
+	m_imgdata->GetExtent(ext);
+	vtkIdType count = m_imgdata->GetPointData()->GetScalars()->GetNumberOfTuples();
+	printf("%d\n", m_imgdata->GetDataDimension());
 	printf("%d %d %d %d %d %d \n", ext[0], ext[1], ext[2], ext[3], ext[4], ext[5]);
-	ext[2] -= 1000;
-	ext[3] -= 1000;
- 	imgdata->SetExtent(ext);
+// 	ext[2] -= 1500;
+// 	ext[3] -= 1500;
+ 	m_imgdata->SetExtent(ext);
 
-	imgdata->GetBounds(Bounds);
+	m_imgdata->GetBounds(Bounds);
 	printf("%f %f %f %f %f %f \n", Bounds[0], Bounds[1], Bounds[2], Bounds[3], Bounds[4], Bounds[5]);
 	double Spacing[3];
-	printf("x=%f y=%f z=%f",imgdata->GetOrigin()[0], imgdata->GetOrigin()[1], imgdata->GetOrigin()[2]);
-	imgdata->SetOrigin(400,400,-500);
-	imgdata->GetSpacing(Spacing);
-	imgdata->SetSpacing(1, 1, 1);
-	imgdata->GetSpacing(Spacing);
-	imgdata->Update();
+	printf("x=%f y=%f z=%f",m_imgdata->GetOrigin()[0], m_imgdata->GetOrigin()[1], m_imgdata->GetOrigin()[2]);
+	m_Offset[0] = 420;
+	m_Offset[1] = -350;
+	m_Offset[2] = -500;
+	m_imgdata->SetOrigin(m_Offset);
+	m_imgdata->GetSpacing(Spacing);
+	m_imgdata->SetSpacing(0.65, 0.65, 0.65);
+	m_imgdata->GetSpacing(Spacing);
+	m_imgdata->Update();
 	printf("%f %f %f\n", Spacing[0], Spacing[1], Spacing[2]);
 
-	imgdata->GetBounds(Bounds);
+	m_imgdata->GetBounds(Bounds);
 	printf("%f %f %f %f %f %f \n", Bounds[0], Bounds[1], Bounds[2], Bounds[3], Bounds[4], Bounds[5]);
 
-	InverseZ(imgdata);
+	InverseZ(m_imgdata);
 	vtkSmartPointer<vtkPolyData> inputPolyData;
 
 	vtkSmartPointer<vtkSphereSource> sphereSource =
@@ -147,7 +162,7 @@ void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr
 
 
 	m_SkinExtractor = vtkSmartNew;
-	m_SkinExtractor->SetInput(imgdata);
+	m_SkinExtractor->SetInput(m_imgdata);
 	//m_SkinExtractor->SetInputConnection(transformFilter->GetOutputPort());  
 	m_SkinExtractor->SetValue(0, 500);  
 
@@ -193,7 +208,7 @@ void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr
 
 	volumeMapper->SetBlendModeToComposite();		// composite first
 	volumeMapper->SetRequestedRenderMode(vtkSmartVolumeMapper::GPURenderMode);
-	volumeMapper->SetInputConnection(imgdata->GetProducerPort());
+	volumeMapper->SetInputConnection(m_imgdata->GetProducerPort());
 	double g_max = 1000, g_min = 0;
 	double step = (g_max-g_min)/6;
  	compositeOpacity->AddPoint(g_min+step*0, 1);
@@ -241,7 +256,7 @@ void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr
 	m_planeWidgetX = vtkSmartNew;
 	m_planeWidgetX->SetInteractor(m_WindowInteractor);
 	m_planeWidgetX->RestrictPlaneToVolumeOn();
-	m_planeWidgetX->SetInput(imgdata);
+	m_planeWidgetX->SetInput(m_imgdata);
 	m_planeWidgetX->SetPlaneOrientationToXAxes();
 	m_planeWidgetX->GetColorMap()->SetLookupTable(colorTransferFunction);
 	m_planeWidgetX->UpdatePlacement();
@@ -250,7 +265,7 @@ void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr
 	m_planeWidgetY = vtkSmartNew;
 	m_planeWidgetY->SetInteractor(m_WindowInteractor);
 	m_planeWidgetY->RestrictPlaneToVolumeOn();
-	m_planeWidgetY->SetInput(imgdata);
+	m_planeWidgetY->SetInput(m_imgdata);
 	m_planeWidgetY->SetPlaneOrientationToYAxes();
 	m_planeWidgetY->GetColorMap()->SetLookupTable(colorTransferFunction);
 	m_planeWidgetY->UpdatePlacement();
@@ -259,7 +274,7 @@ void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr
 	m_planeWidgetZ = vtkSmartNew;
 	m_planeWidgetZ->SetInteractor(m_WindowInteractor);
 	m_planeWidgetZ->RestrictPlaneToVolumeOn();
-	m_planeWidgetZ->SetInput(imgdata);
+	m_planeWidgetZ->SetInput(m_imgdata);
 	m_planeWidgetZ->SetPlaneOrientationToZAxes();
 	m_planeWidgetZ->GetColorMap()->SetLookupTable(colorTransferFunction);
 	m_planeWidgetZ->UpdatePlacement();
@@ -284,11 +299,13 @@ void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr
 	m_vtkmyPWCallback->CursorActor = glyphActor;
 	m_pointWidget = vtkSmartPointer<vtkPointWidget>::New();
 	m_pointWidget->SetInteractor(m_WindowInteractor);
-	m_pointWidget->SetInput(imgdata);
+	m_pointWidget->SetInput(m_imgdata);
 	m_pointWidget->AllOff();
 	m_pointWidget->PlaceWidget();
 	m_pointWidget->AddObserver(vtkCommand::InteractionEvent, m_vtkmyPWCallback);
 	m_pointWidget->On();
+	
+	
 	
 	// 
 	// 	// Begin mouse interaction
@@ -363,7 +380,7 @@ void vtk_view_bottom::Render()
 	printf("y: %d, ", data[1]);
 	printf("z: %d, ", data[2]);
 	printf("\n");
-	Cylinder9_thita = 90-data[2] / 227.556;
+	Cylinder9_thita = 90-data[2] / 11.4;
 	Cylinder5_thita = data[3] / 227.556;
 	Cylinder6_thita = -data[1] / 227.556;
 	Cylinder10_displace = 97-data[0] / 78.3;
@@ -1111,6 +1128,14 @@ void KeyPressInteractorStyle::OnKeyPress()
 		// Forward events
 		vtkInteractorStyleTrackballCamera::OnKeyPress();
 		
+}
+
+void vtk_view_bottom::MovePatientPosition( double x, double y, double z )
+{
+	m_Offset[0] =  420+x;
+	m_Offset[1] = -350+y;
+	m_Offset[2] = -500+z;
+	m_imgdata->SetOrigin(m_Offset);
 }
 
 void KeyPressInteractorStyle::Set(vtk_view_bottom *v)
