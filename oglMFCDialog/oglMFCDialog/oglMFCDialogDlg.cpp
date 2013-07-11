@@ -539,14 +539,14 @@ void CoglMFCDialogDlg::OnBnClickedButtonRegistration()
 	tmp[0]=(650.95+593.56+602.63+556.86)/4;
 	tmp[1]=(-79.48-29.20-52.77-102.55)/4;
 	tmp[2]=(-275.62-259.48-263.66-240.46)/4;
-//  	tmpr[0]=(m_RP1[0]+m_RP2[0]+m_RP3[0]+m_RP4[0])/4;
-//  	tmpr[1]=(m_RP1[1]+m_RP2[1]+m_RP3[1]+m_RP4[1])/4;
-//  	tmpr[2]=(m_RP1[2]+m_RP2[2]+m_RP3[2]+m_RP4[2])/4;
- 	tmpr[0]=(637.29+588.97+543.20+579.90)/4;
-	tmpr[1]=(87.71+137.99+114.42-14.84)/4;
-	tmpr[2]=(-229.97-213.83-218.1-194.81)/4;
+//   	tmpr[0]=(m_RP1[0]+m_RP2[0]+m_RP3[0]+m_RP4[0])/4;
+//   	tmpr[1]=(m_RP1[1]+m_RP2[1]+m_RP3[1]+m_RP4[1])/4;
+//   	tmpr[2]=(m_RP1[2]+m_RP2[2]+m_RP3[2]+m_RP4[2])/4;
+  	tmpr[0]=(617.03+568.71+552.94+559.64)/4;
+ 	tmpr[1]=(92.63+142.91+119.34+69.56)/4;
+ 	tmpr[2]=(-241.54-225.4-229.58-206.38)/4;
 	//m_bottom_vtk.MovePatientPosition(m_RP1[0]-(m_P1[0]-42),m_RP1[1]-(m_P1[1]+32),m_RP1[2]-(m_P1[2]+87));
-	m_bottom_vtk.MovePatientPosition(tmpr[0]-tmp[0]-10,tmpr[1]-tmp[1]+35,tmpr[2]-tmp[2]-87);
+	m_bottom_vtk.MovePatientPosition(tmpr[0]-tmp[0]-7-5,tmpr[1]-tmp[1]-27-18.6,tmpr[2]-tmp[2]-87);
 	//registrationvector[3]=(tmpr[0]-tmp[0],tmpr[1]-tmp[1],tmpr[2]-tmp[2]);
 	
 	this->UpdateData(FALSE);
