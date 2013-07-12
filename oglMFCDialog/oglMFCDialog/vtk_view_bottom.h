@@ -121,6 +121,9 @@ public:
 		v[2] = niddlePos2[2];
 	}
    void MovePatientPosition(double x, double y, double z);
+   void ImagePlaneWidgetOn();
+   void ImagePlaneWidgetOff();
+   
    
 private:
 	void Draw_robotic_arm();

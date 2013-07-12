@@ -107,4 +107,11 @@ public:
 	CString m_ShowRPos5;
 	CString m_ShowRPos6;
 	afx_msg void OnBnClickedButtonRegistration();
+	afx_msg void OnBnClickedPlanewidget();
+	afx_msg void OnBnClickedPlanewidgetoff();
+	double coordinatevalue[3];
+	CString m_Modify_Z;
+	CSliderCtrl m_controlslider_Z;
+	int m_ValueSlider_Z;
+	afx_msg void OnNMCustomdrawSlider4(NMHDR *pNMHDR, LRESULT *pResult);
 };

@@ -71,6 +71,8 @@ CoglMFCDialogDlg::CoglMFCDialogDlg ( CWnd* pParent /*=NULL*/ )
 	, m_ShowRPos4(_T(""))
 	, m_ShowRPos5(_T(""))
 	, m_ShowRPos6(_T(""))
+	, m_Modify_Z(_T(""))
+	, m_ValueSlider_Z(0)
 {
 	m_hIcon = AfxGetApp()->LoadIcon ( IDR_MAINFRAME );
 }
@@ -102,6 +104,9 @@ void CoglMFCDialogDlg::DoDataExchange ( CDataExchange* pDX )
 	DDX_Text(pDX, IDC_STATIC_RP4, m_ShowRPos4);
 	DDX_Text(pDX, IDC_STATIC_RP5, m_ShowRPos5);
 	DDX_Text(pDX, IDC_STATIC_RP6, m_ShowRPos6);
+	DDX_Text(pDX, IDC_Modify_Z, m_Modify_Z);
+	DDX_Control(pDX, IDC_SLIDER_4, m_controlslider_Z);
+	DDX_Slider(pDX, IDC_SLIDER_4, m_ValueSlider_Z);
 }
 
 BEGIN_MESSAGE_MAP ( CoglMFCDialogDlg, CDialogEx )
@@ -130,6 +135,9 @@ BEGIN_MESSAGE_MAP ( CoglMFCDialogDlg, CDialogEx )
 	ON_BN_CLICKED(IDC_BUTTON11, &CoglMFCDialogDlg::OnBnClickedButton11)
 	ON_BN_CLICKED(IDC_BUTTON12, &CoglMFCDialogDlg::OnBnClickedButton12)
 	ON_BN_CLICKED(IDC_BUTTON_Registration, &CoglMFCDialogDlg::OnBnClickedButtonRegistration)
+	ON_BN_CLICKED(IDC_PlaneWidget, &CoglMFCDialogDlg::OnBnClickedPlanewidget)
+	ON_BN_CLICKED(IDC_PlaneWidgetOff, &CoglMFCDialogDlg::OnBnClickedPlanewidgetoff)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER_4, &CoglMFCDialogDlg::OnNMCustomdrawSlider4)
 END_MESSAGE_MAP()
 
 
@@ -154,6 +162,10 @@ BOOL CoglMFCDialogDlg::OnInitDialog()
 	m_ControlSliderLeft.SetRange ( 0,100,TRUE );
 	m_ControlSliderLeft.SetPos ( 0 );
 	m_ShowValue_Left.Format ( _T ( "%d" ),0 );
+	m_controlslider_Z.SetRange( 0,100,TRUE );
+	m_controlslider_Z.SetPos ( 0 );
+	m_Modify_Z.Format ( _T ( "%d" ),0 );
+
 	// 將 [關於...] 功能表加入系統功能表。
 	// IDM_ABOUTBOX 必須在系統命令範圍之中。
 	ASSERT ( ( IDM_ABOUTBOX & 0xFFF0 ) == IDM_ABOUTBOX );
@@ -202,7 +214,9 @@ BOOL CoglMFCDialogDlg::OnInitDialog()
 	// Setup the OpenGL Window's timer to render
 	//m_oglWindow.m_unpTimer = m_oglWindow.SetTimer(1, 1, 0);
 	m_ControlSliderLeft.SetRangeMax ( 1000 );
-
+	m_ControlSliderCenter.SetRange(-60,60);
+	m_ControlSliderRight.SetRange(-60,60);
+	m_controlslider_Z.SetRange(-60,80);
 	this->SetTimer ( IDC_OPENGL, 10, 0 );
 	return TRUE;  // 傳回 TRUE，除非您對控制項設定焦點
 }
@@ -310,6 +324,8 @@ void CoglMFCDialogDlg::OnNMCustomdrawSlider2 ( NMHDR* pNMHDR, LRESULT* pResult )
 	this->UpdateData();
 	printf ( "slider: %d\n", m_SliderCenter );
 	//m_center_vtk.m_SkinExtractor->SetValue(0, m_SliderCenter);
+	m_bottom_vtk.MovePatientPosition(coordinatevalue[0]+m_SliderRight,coordinatevalue[1]+m_SliderCenter,coordinatevalue[2]+m_ValueSlider_Z);
+	this->UpdateData(TRUE);
 	// TODO: 在此加入控制項告知處理常式程式碼
 	*pResult = 0;
 }
@@ -322,6 +338,7 @@ void CoglMFCDialogDlg::OnNMCustomdrawSlider1 ( NMHDR* pNMHDR, LRESULT* pResult )
 	printf ( "slider: %d\n", m_SliderLeft );
 	//m_left_vtk.m_SkinExtractor->SetValue(0, m_SliderLeft);
 	m_bottom_vtk.SetAlpha ( m_SliderLeft*0.01 );
+	//m_bottom_vtk.MovePatientPosition(m_SliderLeft,0,0);
 	// TODO: 在此加入控制項告知處理常式程式碼
 	*pResult = 0;
 }
@@ -332,8 +349,24 @@ void CoglMFCDialogDlg::OnNMCustomdrawSlider3 ( NMHDR* pNMHDR, LRESULT* pResult )
 	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW> ( pNMHDR );
 	this->UpdateData();
 	printf ( "slider: %d\n", m_SliderRight );
-	m_bottom_vtk.Cylinder10_lenth=m_SliderRight;
+	//m_bottom_vtk.Cylinder10_lenth=m_SliderRight;
 	//m_right_vtk.m_SkinExtractor->SetValue(0, m_SliderRight);
+	//m_bottom_vtk.MovePatientPosition(m_SliderRight,0,0);
+	m_bottom_vtk.MovePatientPosition(coordinatevalue[0]+m_SliderRight,coordinatevalue[1]+m_SliderCenter,coordinatevalue[2]+m_ValueSlider_Z);
+	this->UpdateData(TRUE);
+	// TODO: 在此加入控制項告知處理常式程式碼
+	*pResult = 0;
+}
+void CoglMFCDialogDlg::OnNMCustomdrawSlider4(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW> ( pNMHDR );
+	this->UpdateData();
+	printf ( "sliderZ: %d\n", m_ValueSlider_Z );
+	//m_bottom_vtk.Cylinder10_lenth=m_SliderRight;
+	//m_right_vtk.m_SkinExtractor->SetValue(0, m_SliderRight);
+	//m_bottom_vtk.MovePatientPosition(m_SliderRight,0,0);
+	m_bottom_vtk.MovePatientPosition(coordinatevalue[0]+m_SliderRight,coordinatevalue[1]+m_SliderCenter,coordinatevalue[2]+m_ValueSlider_Z);
+	this->UpdateData(TRUE);
 	// TODO: 在此加入控制項告知處理常式程式碼
 	*pResult = 0;
 }
@@ -359,6 +392,13 @@ void CoglMFCDialogDlg::OnHScroll ( UINT nSBCode, UINT nPos, CScrollBar* pScrollB
 	{
 		int value = m_ControlSliderLeft.GetPos();
 		m_ShowValue_Left.Format ( _T ( "%d" ),value );
+		UpdateData ( FALSE );
+	}
+
+	if ( pScrollBar == ( CScrollBar* ) &  m_controlslider_Z )
+	{
+		int value = m_controlslider_Z.GetPos();
+		m_Modify_Z.Format ( _T ( "%d" ),value );
 		UpdateData ( FALSE );
 	}
 	else
@@ -396,8 +436,8 @@ void CoglMFCDialogDlg::OnBnClickedButton1()
 {
 	m_bottom_vtk.Get3DCursor(m_P1);
 	wchar_t buffer[100];
-	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_P1[0], m_P1[1], m_P1[2]);
-	//swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", 650.95,-79.48,-275.62);
+	//swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_P1[0], m_P1[1], m_P1[2]);
+	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", 650.95,-79.48,-275.62);
 	wprintf(buffer);
 	m_ShowPos1.SetString(buffer);
 	this->UpdateData(FALSE);
@@ -408,8 +448,8 @@ void CoglMFCDialogDlg::OnBnClickedButton2()
 {
 	m_bottom_vtk.Get3DCursor(m_P2);
 	wchar_t buffer[100];
-	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_P2[0], m_P2[1], m_P2[2]);
-	//swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f",602.63 ,-29.20 ,-259.48);
+	//swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_P2[0], m_P2[1], m_P2[2]);
+	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f",602.63 ,-29.20 ,-259.48);
 	wprintf(buffer);
 	m_ShowPos2.SetString(buffer);
 	this->UpdateData(FALSE);
@@ -420,8 +460,8 @@ void CoglMFCDialogDlg::OnBnClickedButton3()
 {
 	m_bottom_vtk.Get3DCursor(m_P3);
 	wchar_t buffer[100];
-	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_P3[0], m_P3[1], m_P3[2]);
-	//swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f",556.86 ,-52.77 ,-263.66 );
+	//swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_P3[0], m_P3[1], m_P3[2]);
+	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f",556.86 ,-52.77 ,-263.66 );
 	wprintf(buffer);
 	m_ShowPos3.SetString(buffer);
 	this->UpdateData(FALSE);
@@ -432,8 +472,8 @@ void CoglMFCDialogDlg::OnBnClickedButton4()
 {
 	m_bottom_vtk.Get3DCursor(m_P4);
 	wchar_t buffer[100];
-	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_P4[0], m_P4[1], m_P4[2]);
-	//swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f",593.56 ,-102.55,-240.46);
+	//swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_P4[0], m_P4[1], m_P4[2]);
+	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f",593.56 ,-102.55,-240.46);
 	wprintf(buffer);
 	m_ShowPos4.SetString(buffer);
 	this->UpdateData(FALSE);
@@ -539,17 +579,41 @@ void CoglMFCDialogDlg::OnBnClickedButtonRegistration()
 	tmp[0]=(650.95+593.56+602.63+556.86)/4;
 	tmp[1]=(-79.48-29.20-52.77-102.55)/4;
 	tmp[2]=(-275.62-259.48-263.66-240.46)/4;
-//   	tmpr[0]=(m_RP1[0]+m_RP2[0]+m_RP3[0]+m_RP4[0])/4;
-//   	tmpr[1]=(m_RP1[1]+m_RP2[1]+m_RP3[1]+m_RP4[1])/4;
-//   	tmpr[2]=(m_RP1[2]+m_RP2[2]+m_RP3[2]+m_RP4[2])/4;
-  	tmpr[0]=(617.03+568.71+552.94+559.64)/4;
- 	tmpr[1]=(92.63+142.91+119.34+69.56)/4;
- 	tmpr[2]=(-241.54-225.4-229.58-206.38)/4;
+   	tmpr[0]=(m_RP1[0]+m_RP2[0]+m_RP3[0]+m_RP4[0])/4;
+   	tmpr[1]=(m_RP1[1]+m_RP2[1]+m_RP3[1]+m_RP4[1])/4;
+   	tmpr[2]=(m_RP1[2]+m_RP2[2]+m_RP3[2]+m_RP4[2])/4;
+//   	tmpr[0]=(617.03+568.71+552.94+559.64)/4;
+//  	tmpr[1]=(92.63+142.91+119.34+69.56)/4;
+//  	tmpr[2]=(-241.54-225.4-229.58-206.38)/4;
 	//m_bottom_vtk.MovePatientPosition(m_RP1[0]-(m_P1[0]-42),m_RP1[1]-(m_P1[1]+32),m_RP1[2]-(m_P1[2]+87));
-	m_bottom_vtk.MovePatientPosition(tmpr[0]-tmp[0]-7-5,tmpr[1]-tmp[1]-27-18.6,tmpr[2]-tmp[2]-87);
+	//m_bottom_vtk.MovePatientPosition(tmpr[0]-tmp[0]-7-5-5-5,tmpr[1]-tmp[1]-27-18.6,tmpr[2]-tmp[2]-87);
+	m_bottom_vtk.MovePatientPosition(tmpr[0]-tmp[0],tmpr[1]-tmp[1],tmpr[2]-tmp[2]);
 	//registrationvector[3]=(tmpr[0]-tmp[0],tmpr[1]-tmp[1],tmpr[2]-tmp[2]);
+	coordinatevalue[0]=tmpr[0]-tmp[0];
+	coordinatevalue[1]=tmpr[1]-tmp[1];
+	coordinatevalue[2]=tmpr[2]-tmp[2];
 	
 	this->UpdateData(FALSE);
 
 	
 }
+
+
+void CoglMFCDialogDlg::OnBnClickedPlanewidget()
+{
+	// TODO: 在此加入控制項告知處理常式程式碼
+	m_bottom_vtk.ImagePlaneWidgetOn();
+	this->UpdateData(FALSE);
+
+}
+
+
+void CoglMFCDialogDlg::OnBnClickedPlanewidgetoff()
+{
+	// TODO: 在此加入控制項告知處理常式程式碼
+	m_bottom_vtk.ImagePlaneWidgetOff();
+	this->UpdateData(FALSE);
+
+}
+
+

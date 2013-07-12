@@ -964,7 +964,7 @@ void vtk_view_bottom::Draw_robotic_arm()
 	//transform->RotateWXYZ(double angle, double x, double y, double z);
 	transform10->SetMatrix(transform9->GetMatrix());
 	
-	transform10->Translate(142+Cylinder10_displace,0,-10);
+	transform10->Translate(142+Cylinder10_displace,0,0);
 	transform10->RotateWXYZ(90, 0, 0, 1);
 	//transform10->Translate(Cylinder10_displace,0,0)
 	vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter10 = 
@@ -992,7 +992,7 @@ void vtk_view_bottom::Draw_robotic_arm()
 	//transform->RotateWXYZ(double angle, double x, double y, double z);
 	transform_spheresource->SetMatrix(transform9->GetMatrix());
 
-	transform_spheresource->Translate(142+Cylinder10_displace,0,-10);
+	transform_spheresource->Translate(242+Cylinder10_displace,0,0);
 
 	vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter_spheresource = 
 		vtkSmartPointer<vtkTransformPolyDataFilter>::New();
@@ -1019,7 +1019,7 @@ void vtk_view_bottom::Draw_robotic_arm()
 	//transform->RotateWXYZ(double angle, double x, double y, double z);
 	transform_spheresource1->SetMatrix(transform9->GetMatrix());
 
-	transform_spheresource1->Translate(Cylinder10_displace,0,-10);
+	transform_spheresource1->Translate(42+Cylinder10_displace,0,0);
 
 	vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter_spheresource1 = 
 		vtkSmartPointer<vtkTransformPolyDataFilter>::New();
@@ -1143,4 +1143,15 @@ void KeyPressInteractorStyle::Set(vtk_view_bottom *v)
 	vtk = v;
 }
 
-
+void vtk_view_bottom ::ImagePlaneWidgetOn()
+{
+	m_planeWidgetX->On();
+	m_planeWidgetY->On();
+	m_planeWidgetZ->On();
+}
+void vtk_view_bottom ::ImagePlaneWidgetOff()
+{
+	m_planeWidgetX->Off();
+	m_planeWidgetY->Off();
+	m_planeWidgetZ->Off();
+}
