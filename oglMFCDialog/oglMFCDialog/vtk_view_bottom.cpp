@@ -383,7 +383,7 @@ void vtk_view_bottom::Render()
 	Cylinder9_thita = 90-data[2] / 11.4;
 	Cylinder5_thita = data[3] / 227.556;
 	Cylinder6_thita = -data[1] / 227.556;
-	Cylinder10_displace = 97-data[0] / 78.3;
+	Cylinder10_displace = -data[0] / 78.3;
 	Cube1_thita = -data[5] / 45.5;
 }
 
@@ -597,7 +597,7 @@ void vtk_view_bottom::Draw_robotic_arm()
 	vtkSmartPointer<vtkTransform> transform_A = vtkSmartPointer<vtkTransform>::New();
 	//transform_A->RotateWXYZ(double angle, double x, double y, double z);
 	transform_A->SetMatrix(transform->GetMatrix()); //將現在的矩陣與前一個旋轉矩陣做轉換
-	transform_A->Translate(346,0,0);
+	transform_A->Translate(350,0,0);
 	vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter_A = 
 		vtkSmartPointer<vtkTransformPolyDataFilter>::New();
 	transformFilter_A->SetTransform(transform_A);
@@ -624,7 +624,7 @@ void vtk_view_bottom::Draw_robotic_arm()
 	vtkSmartPointer<vtkTransform> transform5 = vtkSmartPointer<vtkTransform>::New();
 	//transform->RotateWXYZ(double angle, double x, double y, double z);
 	transform5->SetMatrix(transform->GetMatrix());
-	transform5->Translate(346,0,-49);
+	transform5->Translate(350,0,-49);
 	transform5->RotateWXYZ(90, 1, 0, 0);
 	transform5->RotateWXYZ(Cylinder5_thita, 0,0,1);
 
@@ -654,7 +654,7 @@ void vtk_view_bottom::Draw_robotic_arm()
 	vtkSmartPointer<vtkTransform> transform_B = vtkSmartPointer<vtkTransform>::New();
 	//transform_A->RotateWXYZ(double angle, double x, double y, double z);
 	transform_B->SetMatrix(transform->GetMatrix()); //將現在的矩陣與前一個旋轉矩陣做轉換
-	transform_B->Translate(346,0,-81);
+	transform_B->Translate(350,0,-97);
 	transform_B->RotateWXYZ(Cylinder5_thita,0,0,1);
 	vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter_B = 
 		vtkSmartPointer<vtkTransformPolyDataFilter>::New();
@@ -735,7 +735,7 @@ void vtk_view_bottom::Draw_robotic_arm()
 	vtkSmartPointer<vtkTransform> transform_C = vtkSmartPointer<vtkTransform>::New();
 	//transform_A->RotateWXYZ(double angle, double x, double y, double z);
 	transform_C->SetMatrix(transform_B->GetMatrix()); //將現在的矩陣與前一個旋轉矩陣做轉換
-	transform_C->Translate(149,0,15);
+	transform_C->Translate(153,0,20);
 	
 	vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter_C = 
 		vtkSmartPointer<vtkTransformPolyDataFilter>::New();
@@ -761,7 +761,7 @@ void vtk_view_bottom::Draw_robotic_arm()
 	vtkSmartPointer<vtkTransform> transform8 = vtkSmartPointer<vtkTransform>::New();
 	//transform->RotateWXYZ(double angle, double x, double y, double z);
 	transform8->SetMatrix(transform_B->GetMatrix());
-	transform8->Translate(182,0,15);
+	transform8->Translate(182,0,20);
 	transform8->RotateWXYZ(90, 0, 0, 1);
 	vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter8 = 
 		vtkSmartPointer<vtkTransformPolyDataFilter>::New();
@@ -787,7 +787,7 @@ void vtk_view_bottom::Draw_robotic_arm()
 	vtkSmartPointer<vtkTransform> transform_D = vtkSmartPointer<vtkTransform>::New();
 	//transform_A->RotateWXYZ(double angle, double x, double y, double z);
 	transform_D->SetMatrix(transform_B->GetMatrix()); //將現在的矩陣與前一個旋轉矩陣做轉換
-	transform_D->Translate(214,0,15);
+	transform_D->Translate(214,0,20);
 	transform_D->RotateWXYZ(Cylinder6_thita,1,0,0);
 	vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter_D = 
 		vtkSmartPointer<vtkTransformPolyDataFilter>::New();
@@ -860,7 +860,7 @@ void vtk_view_bottom::Draw_robotic_arm()
 	vtkSmartPointer<vtkTransform> transform9 = vtkSmartPointer<vtkTransform>::New();
 	//transform->RotateWXYZ(double angle, double x, double y, double z);
 	transform9->SetMatrix(transform_D->GetMatrix());
-	transform9->Translate(162,0,0);
+	transform9->Translate(183,0,0);
 	transform9->RotateWXYZ(Cylinder9_thita,0,1,0);
 	vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter9 = 
 		vtkSmartPointer<vtkTransformPolyDataFilter>::New();
@@ -956,7 +956,7 @@ void vtk_view_bottom::Draw_robotic_arm()
 	CylinderSource10 =vtkCylinderSource::New();
 	//CylinderSource8->SetCenter(36,-557,-37);
 	CylinderSource10->SetRadius(1.0);
-	CylinderSource10->SetHeight(200);
+	CylinderSource10->SetHeight(160);
 	CylinderSource10->SetResolution(100);
 	CylinderSource10 ->Update();
 
@@ -964,7 +964,7 @@ void vtk_view_bottom::Draw_robotic_arm()
 	//transform->RotateWXYZ(double angle, double x, double y, double z);
 	transform10->SetMatrix(transform9->GetMatrix());
 	
-	transform10->Translate(142+Cylinder10_displace,0,0);
+	transform10->Translate(203+Cylinder10_displace+17,0,20);
 	transform10->RotateWXYZ(90, 0, 0, 1);
 	//transform10->Translate(Cylinder10_displace,0,0)
 	vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter10 = 
@@ -992,7 +992,7 @@ void vtk_view_bottom::Draw_robotic_arm()
 	//transform->RotateWXYZ(double angle, double x, double y, double z);
 	transform_spheresource->SetMatrix(transform9->GetMatrix());
 
-	transform_spheresource->Translate(242+Cylinder10_displace,0,0);
+	transform_spheresource->Translate(283+17+Cylinder10_displace,0,20);
 
 	vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter_spheresource = 
 		vtkSmartPointer<vtkTransformPolyDataFilter>::New();
@@ -1019,7 +1019,7 @@ void vtk_view_bottom::Draw_robotic_arm()
 	//transform->RotateWXYZ(double angle, double x, double y, double z);
 	transform_spheresource1->SetMatrix(transform9->GetMatrix());
 
-	transform_spheresource1->Translate(42+Cylinder10_displace,0,0);
+	transform_spheresource1->Translate(123+17+Cylinder10_displace,0,20);
 
 	vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter_spheresource1 = 
 		vtkSmartPointer<vtkTransformPolyDataFilter>::New();
