@@ -37,7 +37,7 @@ public:
 	double	m_cubePos[3];
 	vtk_view(void);
 	~vtk_view(void);
-	void InitVTK(HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr dicom);
+	void InitVTK(HWND hwnd, int w, int h, vtkImageData_Sptr imgdata);
 	void Render();
 	void SetClip(int c)
 	{

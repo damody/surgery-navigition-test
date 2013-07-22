@@ -43,7 +43,7 @@ public:
 	vtk_view_left(void);
 	~vtk_view_left(void);
 	
-	void InitVTK(HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr dicom);
+	void InitVTK(HWND hwnd, int w, int h, vtkImageData_Sptr imgdata);
 	void Render();
 	void SetClip(int c)
 	{

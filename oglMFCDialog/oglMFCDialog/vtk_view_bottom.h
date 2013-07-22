@@ -96,7 +96,7 @@ public:
 	double  m_alpha;
 	vtk_view_bottom(void);
 	~vtk_view_bottom(void);
-	void InitVTK(HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr dicom);
+	void InitVTK(HWND hwnd, int w, int h, vtkImageData_Sptr imgdata);
 	void SetAlpha(double a);
 	void Render();
 	void Get3DCursor(double* position)

@@ -143,6 +143,51 @@ END_MESSAGE_MAP()
 
 // CoglMFCDialogDlg 訊息處理常式
 
+
+vtkImageData_Sptr InverseZ(vtkImageData* imgdata)
+{
+	vtkPolyData_Sptr polydata = vtkSmartNew;
+	vtkPoints_Sptr input_points = vtkSmartNew;
+	vtkDoubleArray_Sptr input_scalars_tmp = vtkSmartNew;
+	vtkDoubleArray_Sptr input_scalars = vtkSmartNew;
+
+	int nx, ny, nz, dim[3];
+	vtkIdType count = imgdata->GetPointData()->GetScalars()->GetNumberOfTuples();
+	imgdata->GetDimensions(dim);
+	nx = dim[0];
+	ny = dim[1];
+	nz = dim[2];
+	printf("%d %d %d\n", nx, ny, nz);
+	std::vector<double> data;
+	for (int k=0;k<nz;++k)
+	{
+		for (int j=0;j<ny;++j)
+		{
+			for (int i=0;i<nx;++i)
+			{
+				input_scalars_tmp->InsertNextTuple1(imgdata->GetPointData()->GetScalars()->GetTuple1(i+nx*j+nx*ny*(nz-k-1)));
+			}
+		}
+	}
+	for (int j=0;j<ny;++j)
+	{
+		for (int k=0;k<nz;++k)
+		{
+			for (int i=0;i<nx;++i)
+			{
+				input_points->InsertNextPoint(i, k, j);
+				input_scalars->InsertNextTuple1(input_scalars_tmp->GetTuple1(i+nx*j+nx*ny*k));
+			}
+		}
+	}
+	// 	polydata->SetPoints(input_points);
+	// 	polydata->GetPointData()->SetScalars(input_scalars);
+	imgdata->SetDimensions(nx,nz,ny);
+	imgdata->GetPointData()->SetScalars(input_scalars);
+	return imgdata;
+}
+
+
 BOOL CoglMFCDialogDlg::OnInitDialog()
 {
 	AllocConsole();
@@ -194,14 +239,26 @@ BOOL CoglMFCDialogDlg::OnInitDialog()
 	CRect rect;
 	vtkDICOMImageReader_Sptr dicom	= vtkSmartNew;
 	dicom->SetDataByteOrderToLittleEndian();
-	dicom->SetDirectoryName ( "kevin_DICOM" );
+	dicom->SetDirectoryName ( "SE4" ); // 68B0A
 	dicom->Update();
+	dicom = dicom;
+	vtkImageData_Sptr img = vtkSmartNew;
+	img->DeepCopy(dicom->GetOutput(0));
+	double Bounds[6];
+
+	img->GetBounds(Bounds);
+	printf("%f %f %f %f %f %f \n", Bounds[0], Bounds[1], Bounds[2], Bounds[3], Bounds[4], Bounds[5]);
+	img->SetSpacing(0.65, 0.65, 0.65);
+	img->Update();
+	InverseZ(img);
+
 	GetDlgItem ( IDC_OPENGL )->GetWindowRect ( rect );
-	m_bottom_vtk.InitVTK ( GetDlgItem ( IDC_OPENGL )->GetSafeHwnd(), rect.Width(), rect.Height(), dicom );	
+
+	m_bottom_vtk.InitVTK ( GetDlgItem ( IDC_OPENGL )->GetSafeHwnd(), rect.Width(), rect.Height(), img );	
 	GetDlgItem ( IDC_LEFT_VTK )->GetWindowRect ( rect );
-	m_left_vtk.InitVTK ( GetDlgItem ( IDC_LEFT_VTK )->GetSafeHwnd(), rect.Width(), rect.Height(), dicom );	
-	m_center_vtk.InitVTK ( GetDlgItem ( IDC_CENTER_VTK )->GetSafeHwnd(), rect.Width(), rect.Height(), dicom );	
-	m_right_vtk.InitVTK ( GetDlgItem ( IDC_RIGHT_VTK )->GetSafeHwnd(), rect.Width(), rect.Height(), dicom );
+	m_left_vtk.InitVTK ( GetDlgItem ( IDC_LEFT_VTK )->GetSafeHwnd(), rect.Width(), rect.Height(), img );	
+	m_center_vtk.InitVTK ( GetDlgItem ( IDC_CENTER_VTK )->GetSafeHwnd(), rect.Width(), rect.Height(), img );	
+	m_right_vtk.InitVTK ( GetDlgItem ( IDC_RIGHT_VTK )->GetSafeHwnd(), rect.Width(), rect.Height(), img );
 
 	// Get size and position of the template textfield we created before in the dialog editor
 	GetDlgItem ( IDC_OPENGL )->GetWindowRect ( rect );
@@ -436,8 +493,8 @@ void CoglMFCDialogDlg::OnBnClickedButton1()
 {
 	m_bottom_vtk.Get3DCursor(m_P1);
 	wchar_t buffer[100];
-	//swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_P1[0], m_P1[1], m_P1[2]);
-	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", 650.95,-79.48,-275.62);
+	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_P1[0], m_P1[1], m_P1[2]);
+	//swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", 650.95,-79.48,-275.62);
 	wprintf(buffer);
 	m_ShowPos1.SetString(buffer);
 	this->UpdateData(FALSE);
@@ -448,8 +505,8 @@ void CoglMFCDialogDlg::OnBnClickedButton2()
 {
 	m_bottom_vtk.Get3DCursor(m_P2);
 	wchar_t buffer[100];
-	//swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_P2[0], m_P2[1], m_P2[2]);
-	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f",602.63 ,-29.20 ,-259.48);
+	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_P2[0], m_P2[1], m_P2[2]);
+	//swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f",602.63 ,-29.20 ,-259.48);
 	wprintf(buffer);
 	m_ShowPos2.SetString(buffer);
 	this->UpdateData(FALSE);
@@ -460,8 +517,8 @@ void CoglMFCDialogDlg::OnBnClickedButton3()
 {
 	m_bottom_vtk.Get3DCursor(m_P3);
 	wchar_t buffer[100];
-	//swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_P3[0], m_P3[1], m_P3[2]);
-	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f",556.86 ,-52.77 ,-263.66 );
+	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_P3[0], m_P3[1], m_P3[2]);
+	//swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f",556.86 ,-52.77 ,-263.66 );
 	wprintf(buffer);
 	m_ShowPos3.SetString(buffer);
 	this->UpdateData(FALSE);
@@ -472,8 +529,8 @@ void CoglMFCDialogDlg::OnBnClickedButton4()
 {
 	m_bottom_vtk.Get3DCursor(m_P4);
 	wchar_t buffer[100];
-	//swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_P4[0], m_P4[1], m_P4[2]);
-	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f",593.56 ,-102.55,-240.46);
+	swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f", m_P4[0], m_P4[1], m_P4[2]);
+	//swprintf_s(buffer, L"x:%.2f y:%.2f z:%.2f",593.56 ,-102.55,-240.46);
 	wprintf(buffer);
 	m_ShowPos4.SetString(buffer);
 	this->UpdateData(FALSE);
@@ -573,12 +630,12 @@ void CoglMFCDialogDlg::OnBnClickedButtonRegistration()
 {
 	double tmp[3],tmpr[3];
 	// TODO: 在此加入控制項告知處理常式程式碼
-//  	tmp[0]=(m_P1[0]+m_P2[0]+m_P3[0]+m_P4[0])/4;
-//  	tmp[1]=(m_P1[1]+m_P2[1]+m_P3[1]+m_P4[1])/4;
-//  	tmp[2]=(m_P1[2]+m_P2[2]+m_P3[2]+m_P4[2])/4;
-	tmp[0]=(650.95+593.56+602.63+556.86)/4;
-	tmp[1]=(-79.48-29.20-52.77-102.55)/4;
-	tmp[2]=(-275.62-259.48-263.66-240.46)/4;
+//   	tmp[0]=(m_P1[0]+m_P2[0]+m_P3[0]+m_P4[0])/4;
+//   	tmp[1]=(m_P1[1]+m_P2[1]+m_P3[1]+m_P4[1])/4;
+//   	tmp[2]=(m_P1[2]+m_P2[2]+m_P3[2]+m_P4[2])/4;
+  	tmp[0]=(650.69+597.05+553.25+532.64)/4;
+  	tmp[1]=(-74.2-29.97-55.70-97.84)/4;
+  	tmp[2]=(-282.76-267.28-272-285.31)/4;
    	tmpr[0]=(m_RP1[0]+m_RP2[0]+m_RP3[0]+m_RP4[0])/4;
    	tmpr[1]=(m_RP1[1]+m_RP2[1]+m_RP3[1]+m_RP4[1])/4;
    	tmpr[2]=(m_RP1[2]+m_RP2[2]+m_RP3[2]+m_RP4[2])/4;

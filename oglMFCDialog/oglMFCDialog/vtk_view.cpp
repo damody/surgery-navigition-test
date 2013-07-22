@@ -17,7 +17,7 @@ vtk_view::~vtk_view(void)
 {
 }
 
-void vtk_view::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr dicom )
+void vtk_view::InitVTK( HWND hwnd, int w, int h, vtkImageData_Sptr imgdata )
 {
 	m_init = true;
 	m_tubeActor = vtkSmartNew;
@@ -27,10 +27,6 @@ void vtk_view::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr dicom 
 	ShowWindow(m_hwnd, true);
 	UpdateWindow(m_hwnd);
 	m_hwnd = hwnd;
-	m_DICOM = dicom;
-	vtkImageData_Sptr imgdata = vtkSmartNew;
-	imgdata->DeepCopy(m_DICOM->GetOutput(0));
-
 
 	double Bounds[6];
 	int ext[6];

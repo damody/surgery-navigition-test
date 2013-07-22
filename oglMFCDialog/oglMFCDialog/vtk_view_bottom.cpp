@@ -66,51 +66,7 @@ vtk_view_bottom::~vtk_view_bottom(void)
 {
 }
 
-
-vtkImageData_Sptr InverseZ(vtkImageData* imgdata)
-{
-	vtkPolyData_Sptr polydata = vtkSmartNew;
-	vtkPoints_Sptr input_points = vtkSmartNew;
-	vtkDoubleArray_Sptr input_scalars_tmp = vtkSmartNew;
-	vtkDoubleArray_Sptr input_scalars = vtkSmartNew;
-
-	int nx, ny, nz, dim[3];
-	vtkIdType count = imgdata->GetPointData()->GetScalars()->GetNumberOfTuples();
-	imgdata->GetDimensions(dim);
-	nx = dim[0];
-	ny = dim[1];
-	nz = dim[2];
-	printf("%d %d %d\n", nx, ny, nz);
-	std::vector<double> data;
-	for (int k=0;k<nz;++k)
-	{
-		for (int j=0;j<ny;++j)
-		{
-			for (int i=0;i<nx;++i)
-			{
-				input_scalars_tmp->InsertNextTuple1(imgdata->GetPointData()->GetScalars()->GetTuple1(i+nx*j+nx*ny*(nz-k-1)));
-			}
-		}
-	}
-	for (int j=0;j<ny;++j)
-	{
-		for (int k=0;k<nz;++k)
-		{
-			for (int i=0;i<nx;++i)
-			{
-				input_points->InsertNextPoint(i, k, j);
-				input_scalars->InsertNextTuple1(input_scalars_tmp->GetTuple1(i+nx*j+nx*ny*k));
-			}
-		}
-	}
-	// 	polydata->SetPoints(input_points);
-	// 	polydata->GetPointData()->SetScalars(input_scalars);
-	imgdata->SetDimensions(512,655,512);
-	imgdata->GetPointData()->SetScalars(input_scalars);
-	return imgdata;
-}
-
-void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr dicom )
+void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkImageData_Sptr imgdata )
 {
 // 	m_hwnd = CreateWindowA("edit", "", WS_CHILD | WS_DISABLED | WS_VISIBLE
 // 		, 0, 0, w, h, hwnd, 
@@ -118,20 +74,11 @@ void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr
 // 	ShowWindow(m_hwnd, true);
 // 	UpdateWindow(m_hwnd);
 	m_hwnd = hwnd;
-	m_DICOM = dicom;
-	m_imgdata = vtkSmartNew;
-	m_imgdata->DeepCopy(m_DICOM->GetOutput(0));
 	
+	m_imgdata = vtkSmartNew;
+	m_imgdata->DeepCopy(imgdata);
 
 	double Bounds[6];
-	int ext[6];
-	m_imgdata->GetExtent(ext);
-	vtkIdType count = m_imgdata->GetPointData()->GetScalars()->GetNumberOfTuples();
-	printf("%d\n", m_imgdata->GetDataDimension());
-	printf("%d %d %d %d %d %d \n", ext[0], ext[1], ext[2], ext[3], ext[4], ext[5]);
-// 	ext[2] -= 1500;
-// 	ext[3] -= 1500;
- 	m_imgdata->SetExtent(ext);
 
 	m_imgdata->GetBounds(Bounds);
 	printf("%f %f %f %f %f %f \n", Bounds[0], Bounds[1], Bounds[2], Bounds[3], Bounds[4], Bounds[5]);
@@ -141,16 +88,11 @@ void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr
 	m_Offset[1] = -350;
 	m_Offset[2] = -500;
 	m_imgdata->SetOrigin(m_Offset);
-	m_imgdata->GetSpacing(Spacing);
-	m_imgdata->SetSpacing(0.65, 0.65, 0.65);
-	m_imgdata->GetSpacing(Spacing);
 	m_imgdata->Update();
-	printf("%f %f %f\n", Spacing[0], Spacing[1], Spacing[2]);
 
 	m_imgdata->GetBounds(Bounds);
 	printf("%f %f %f %f %f %f \n", Bounds[0], Bounds[1], Bounds[2], Bounds[3], Bounds[4], Bounds[5]);
 
-	InverseZ(m_imgdata);
 	vtkSmartPointer<vtkPolyData> inputPolyData;
 
 	vtkSmartPointer<vtkSphereSource> sphereSource =
@@ -260,7 +202,7 @@ void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr
 	m_planeWidgetX->SetPlaneOrientationToXAxes();
 	m_planeWidgetX->GetColorMap()->SetLookupTable(colorTransferFunction);
 	m_planeWidgetX->UpdatePlacement();
-	//m_planeWidgetX->On();
+	m_planeWidgetX->On();
 
 	m_planeWidgetY = vtkSmartNew;
 	m_planeWidgetY->SetInteractor(m_WindowInteractor);
@@ -269,7 +211,7 @@ void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr
 	m_planeWidgetY->SetPlaneOrientationToYAxes();
 	m_planeWidgetY->GetColorMap()->SetLookupTable(colorTransferFunction);
 	m_planeWidgetY->UpdatePlacement();
-	//m_planeWidgetY->On();
+	m_planeWidgetY->On();
 
 	m_planeWidgetZ = vtkSmartNew;
 	m_planeWidgetZ->SetInteractor(m_WindowInteractor);
@@ -278,7 +220,7 @@ void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkDICOMImageReader_Sptr
 	m_planeWidgetZ->SetPlaneOrientationToZAxes();
 	m_planeWidgetZ->GetColorMap()->SetLookupTable(colorTransferFunction);
 	m_planeWidgetZ->UpdatePlacement();
-	//m_planeWidgetZ->On();
+	m_planeWidgetZ->On();
 
 
 	vtkSmartPointer<vtkConeSource> cone =
@@ -964,7 +906,7 @@ void vtk_view_bottom::Draw_robotic_arm()
 	//transform->RotateWXYZ(double angle, double x, double y, double z);
 	transform10->SetMatrix(transform9->GetMatrix());
 	
-	transform10->Translate(203+Cylinder10_displace+17,0,20);
+	transform10->Translate(209+Cylinder10_displace+17,0,20);
 	transform10->RotateWXYZ(90, 0, 0, 1);
 	//transform10->Translate(Cylinder10_displace,0,0)
 	vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter10 = 
@@ -992,7 +934,7 @@ void vtk_view_bottom::Draw_robotic_arm()
 	//transform->RotateWXYZ(double angle, double x, double y, double z);
 	transform_spheresource->SetMatrix(transform9->GetMatrix());
 
-	transform_spheresource->Translate(283+17+Cylinder10_displace,0,20);
+	transform_spheresource->Translate(289+17+Cylinder10_displace,0,20);
 
 	vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter_spheresource = 
 		vtkSmartPointer<vtkTransformPolyDataFilter>::New();
@@ -1019,7 +961,7 @@ void vtk_view_bottom::Draw_robotic_arm()
 	//transform->RotateWXYZ(double angle, double x, double y, double z);
 	transform_spheresource1->SetMatrix(transform9->GetMatrix());
 
-	transform_spheresource1->Translate(123+17+Cylinder10_displace,0,20);
+	transform_spheresource1->Translate(129+17+Cylinder10_displace,0,20);
 
 	vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter_spheresource1 = 
 		vtkSmartPointer<vtkTransformPolyDataFilter>::New();
