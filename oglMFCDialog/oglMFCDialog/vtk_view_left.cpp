@@ -180,7 +180,7 @@ void vtk_view_left::SetCylinder( double* start, double* end )
 	vtkSmartPointer<vtkTubeFilter> tubeFilter = 
 		vtkSmartPointer<vtkTubeFilter>::New();
 	tubeFilter->SetInputConnection(lineSource->GetOutputPort());
-	tubeFilter->SetRadius(1); //default is .5
+	tubeFilter->SetRadius(3); //default is .5
 	tubeFilter->SetNumberOfSides(50);
 	tubeFilter->Update();
 	vtkSmartPointer<vtkPolyDataMapper> tubeMapper = 

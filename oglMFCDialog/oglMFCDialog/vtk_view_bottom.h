@@ -89,13 +89,15 @@ public:
 	vtkSmartPointer<vtkPointWidget> m_pointWidget;
 	vtkSmartPointer<vtkmyPWCallback> m_vtkmyPWCallback;
 	vtkImageData_Sptr m_imgdata;
-
+	vtkActor_Sptr m_tubeActor;
+	bool m_init;
 
 	int		m_clipX, m_clipY, m_clipZ;
 	HWND	m_hwnd;
 	double  m_alpha;
 	vtk_view_bottom(void);
 	~vtk_view_bottom(void);
+	void SetCylinder( double* start, double* end );
 	void InitVTK(HWND hwnd, int w, int h, vtkImageData_Sptr imgdata);
 	void SetAlpha(double a);
 	void Render();
@@ -130,8 +132,9 @@ private:
 	double Cube1_thita,Cylinder5_thita,Cylinder6_thita,Cylinder9_thita,Cylinder10_displace;
 	double niddlePos_tmp1[6];
 	double niddlePos1[3];
-	double niddlePos_tmp2[3];
+	double niddlePos_tmp2[6];
 	double niddlePos2[3];
-	double m_Offset[3];	
+	double m_Offset[3];
+
 };
 

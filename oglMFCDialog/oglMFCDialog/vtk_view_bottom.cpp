@@ -7,6 +7,8 @@
 #include <windows.h>
 #include <cstdio>
 #include <string>
+#include <vtkTubeFilter.h>
+#include <vtkLineSource.h>
 
 class FileMappingGetter
 {
@@ -59,6 +61,7 @@ vtk_view_bottom::vtk_view_bottom(void)
 {
 	Cube1_thita=0,Cylinder5_thita=0,Cylinder6_thita=0,Cylinder9_thita=0,Cylinder10_displace=0,Cylinder10_lenth=0;
 	m_alpha = 2;
+	m_init = false;
 }
 
 
@@ -68,6 +71,7 @@ vtk_view_bottom::~vtk_view_bottom(void)
 
 void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkImageData_Sptr imgdata )
 {
+	m_init = true;
 // 	m_hwnd = CreateWindowA("edit", "", WS_CHILD | WS_DISABLED | WS_VISIBLE
 // 		, 0, 0, w, h, hwnd, 
 // 		(HMENU)"", GetModuleHandle(NULL), NULL);
@@ -76,8 +80,9 @@ void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkImageData_Sptr imgdat
 	m_hwnd = hwnd;
 	
 	m_imgdata = vtkSmartNew;
-	m_imgdata->DeepCopy(imgdata);
-
+	m_imgdata = imgdata;
+	//m_imgdata->DeepCopy(imgdata);
+	m_tubeActor = vtkSmartNew;
 	double Bounds[6];
 
 	m_imgdata->GetBounds(Bounds);
@@ -222,7 +227,6 @@ void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkImageData_Sptr imgdat
 	m_planeWidgetZ->UpdatePlacement();
 	m_planeWidgetZ->On();
 
-
 	vtkSmartPointer<vtkConeSource> cone =
 		vtkSmartPointer<vtkConeSource>::New();
 	cone->SetResolution(16);
@@ -245,10 +249,7 @@ void vtk_view_bottom::InitVTK( HWND hwnd, int w, int h, vtkImageData_Sptr imgdat
 	m_pointWidget->AllOff();
 	m_pointWidget->PlaceWidget();
 	m_pointWidget->AddObserver(vtkCommand::InteractionEvent, m_vtkmyPWCallback);
-	m_pointWidget->On();
-	
-	
-	
+	m_pointWidget->On();	
 	// 
 	// 	// Begin mouse interaction
 	// 	
@@ -266,7 +267,7 @@ void vtk_view_bottom::Render()
 	//if (m_planeWidgetX->GetCursorDataStatus())
 	{
 		//m_planeWidgetX->GetCurrentCursorPosition(pos);
-		pos[0] = m_clipX+400;;
+		pos[0] = m_clipX+400;
 		pos[1] = m_clipY+400;
 		pos[2] = m_clipZ-50;
 		pos[2] *= 10;
@@ -297,9 +298,8 @@ void vtk_view_bottom::Render()
 // 		//mapper->Update();
 		mapper->Update();
 		actor->SetMapper(mapper);
-
 		m_Renderer->AddActor(actor);
-			
+		
 		Draw_robotic_arm();
 		niddlePos1[0] =(niddlePos_tmp1[1]+niddlePos_tmp1[0])/2;
 		niddlePos1[1] =(niddlePos_tmp1[3]+niddlePos_tmp1[2])/2;
@@ -961,7 +961,7 @@ void vtk_view_bottom::Draw_robotic_arm()
 	//transform->RotateWXYZ(double angle, double x, double y, double z);
 	transform_spheresource1->SetMatrix(transform9->GetMatrix());
 
-	transform_spheresource1->Translate(129+17+Cylinder10_displace,0,20);
+	transform_spheresource1->Translate(120+17+Cylinder10_displace,0,20);
 
 	vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter_spheresource1 = 
 		vtkSmartPointer<vtkTransformPolyDataFilter>::New();
@@ -1097,3 +1097,27 @@ void vtk_view_bottom ::ImagePlaneWidgetOff()
 	m_planeWidgetY->Off();
 	m_planeWidgetZ->Off();
 }
+
+void vtk_view_bottom::SetCylinder( double* start, double* end )
+{
+	if (!m_init) return;
+	vtkSmartPointer<vtkLineSource> lineSource = 
+		vtkSmartPointer<vtkLineSource>::New();
+	lineSource->SetPoint1(start[0], start[1], start[2]);
+	lineSource->SetPoint2(end[0], end[1], end[2]);
+	vtkSmartPointer<vtkTubeFilter> tubeFilter = 
+		vtkSmartPointer<vtkTubeFilter>::New();
+	tubeFilter->SetInputConnection(lineSource->GetOutputPort());
+	tubeFilter->SetRadius(1); //default is .5
+	tubeFilter->SetNumberOfSides(50);
+	tubeFilter->Update();
+	vtkSmartPointer<vtkPolyDataMapper> tubeMapper = 
+		vtkSmartPointer<vtkPolyDataMapper>::New();
+	tubeMapper->SetInputConnection(tubeFilter->GetOutputPort());
+
+	m_tubeActor->GetProperty()->SetOpacity(0.5); //Make the tube have some transparency.
+	m_tubeActor->SetMapper(tubeMapper);
+	m_Renderer->AddActor(m_tubeActor);
+
+}
+

@@ -248,18 +248,24 @@ BOOL CoglMFCDialogDlg::OnInitDialog()
 
 	img->GetBounds(Bounds);
 	printf("%f %f %f %f %f %f \n", Bounds[0], Bounds[1], Bounds[2], Bounds[3], Bounds[4], Bounds[5]);
-	img->SetSpacing(0.65, 0.65, 0.65);
+	
 	img->Update();
+	double m_Offset[3];
+	m_Offset[0] = 420;
+	m_Offset[1] = -350;
+	m_Offset[2] = -500;
+	img->SetOrigin(m_Offset);
+	img->Update();
+	img->SetSpacing(0.65, 0.65, 0.65);
 	InverseZ(img);
 
 	GetDlgItem ( IDC_OPENGL )->GetWindowRect ( rect );
-
 	m_bottom_vtk.InitVTK ( GetDlgItem ( IDC_OPENGL )->GetSafeHwnd(), rect.Width(), rect.Height(), img );	
 	GetDlgItem ( IDC_LEFT_VTK )->GetWindowRect ( rect );
 	m_left_vtk.InitVTK ( GetDlgItem ( IDC_LEFT_VTK )->GetSafeHwnd(), rect.Width(), rect.Height(), img );	
 	m_center_vtk.InitVTK ( GetDlgItem ( IDC_CENTER_VTK )->GetSafeHwnd(), rect.Width(), rect.Height(), img );	
 	m_right_vtk.InitVTK ( GetDlgItem ( IDC_RIGHT_VTK )->GetSafeHwnd(), rect.Width(), rect.Height(), img );
-
+	img->SetSpacing(0.65, 0.65, 0.65);
 	// Get size and position of the template textfield we created before in the dialog editor
 	GetDlgItem ( IDC_OPENGL )->GetWindowRect ( rect );
 	// Convert screen coordinates to client coordinates
@@ -358,6 +364,7 @@ void CoglMFCDialogDlg::OnTimer ( UINT_PTR nIDEvent )
 	m_bottom_vtk.GetNiddlePos1(tmp1);
 	m_bottom_vtk.GetNiddlePos2(tmp2);
 	getcoordinate ( tmp1 );
+	m_bottom_vtk.SetCylinder(tmp1, tmp2);
 	m_left_vtk.SetCylinder(tmp1, tmp2);
 	m_right_vtk.SetCylinder(tmp1, tmp2);
 	m_center_vtk.SetCylinder(tmp1, tmp2);
